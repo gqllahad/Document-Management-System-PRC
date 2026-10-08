@@ -10,3 +10,25 @@ php artisan migrate
 
 npx vite build
 #build 
+
+
+
+
+
+@section('header')
+
+@include('name')
+@endsection
+
+
+@section('main-content')
+@endsection
+
+
+@section('footer')
+@endsection
+
+
+
+#TODO: Default pages should render what layout is in used.
+

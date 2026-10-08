@@ -6,6 +6,15 @@
     <title>All Division</title>
 </head>
 <body>
-    <h1>Division</h1>
+
+@if ($role === 'admin')
+    <p>You are an admin.</p>
+@else
+    <p>You are a regular user.</p>
+@endif
+
+<h1>Division</h1>
+
+
 </body>
 </html>
