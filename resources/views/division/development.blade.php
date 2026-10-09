@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Development</title>
-</head>
-<body>
-    <h1>Development</h1>
-</body>
-</html>
+@extends('layouts.shared_division')
+
+@section('title', 'Systems Development and Maintenance Division')
+@section('division', 'SDMD')
+
+@section('main-content')
+    <div class="card">SDMD documents</div>
+@endsection

@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database</title>
-</head>
-<body>
-    <h1>Database</h1>
-</body>
-</html>
+@extends('layouts.shared_division')
+
+@section('title', 'Database Management Systems Division')
+@section('division', 'DMSD')
+
+@section('main-content')
+    <div class="card">DMSD documents</div>
+@endsection

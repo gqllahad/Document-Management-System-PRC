@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIISD</title>
-</head>
-<body>
-    <h1>NIISD</h1>
-</body>
-</html>
+@extends('layouts.shared_division')
+
+@section('title', 'Network Infrastructure and Information Security Division')
+@section('division', 'NIISD')
+
+@section('main-content')
+    <div class="card">NIISD documents</div>
+@endsection

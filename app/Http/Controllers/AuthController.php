@@ -19,7 +19,10 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect("/division");
+
+            $user = Auth::user();
+
+            return $user->role === 'admin' ? redirect('/division'): redirect('/division/' . strtolower($user->division->name));
         }
 
         return back()->withErrors(["email" => "Invalid email or password"])->onlyInput("email");
@@ -47,5 +50,14 @@ class AuthController extends Controller
     public function showDivision(){
         $divisions = Division::all();
         return view('auth.register_user', compact('divisions'));
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }

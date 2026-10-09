@@ -10,9 +10,19 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
-        //
+    ->withMiddleware(function (Middleware $middleware) {
+
+        $middleware->redirectGuestsTo('/'); //prevent unknown loggers
+
+        $middleware->alias([
+            'role'     => \App\Http\Middleware\RoleMiddleware::class,
+            'division' => \App\Http\Middleware\DivisionMiddleware::class,
+            'nocache'  => \App\Http\Middleware\NoCache::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
+      
     })->create();
+
+    

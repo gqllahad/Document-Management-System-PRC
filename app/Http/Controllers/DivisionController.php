@@ -4,9 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Models\Division;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DivisionController extends Controller
 {
+
+    public function admin()
+    {
+        $user = Auth::user();
+
+        return view('division.division', [
+            'email' => $user->email,
+            'role'  => $user->role,
+        ]);
+    }
+
+    public function show(string $name)
+    {
+        return view('division.' . $name);
+    }
+
+
     /**
      * Display a listing of the resource.
      */
@@ -30,15 +48,6 @@ class DivisionController extends Controller
     {
         //
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Division $division)
-    {
-        //
-    }
-
     /**
      * Show the form for editing the specified resource.
      */

@@ -45,7 +45,7 @@ body, html{
 
 /* auth page */
 .auth-page {
-    min-height: calc(100vh - 70px);
+    min-height: calc(100vh);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -55,7 +55,7 @@ body, html{
 
 .auth-card {
     width: 100%;
-    max-width: 430px;
+    max-width: 600px;
     padding: 40px;
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -96,9 +96,9 @@ body, html{
     line-height: 1.5;
 }
 .auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr ;
+    gap: 1rem;
 }
 
 .auth-button {
@@ -142,6 +142,18 @@ body, html{
 .auth-footer a:hover {
     text-decoration: underline;
 }
+
+.auth-form .form-group {
+    min-width: 0;
+    margin: 0;
+}
+
+.auth-form .form-group:nth-last-of-type(1),
+.auth-form .auth-button {
+    grid-column: 1 / -1;
+}
+
+
 
 /* login/home */
 .login-page {
@@ -435,6 +447,11 @@ body, html{
         padding: 50px 25px;
     }
 }
+
+@media (max-width: 600px) {
+    .auth-form { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 480px) {
     .login-brand {
         min-height: 260px;

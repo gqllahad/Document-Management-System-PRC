@@ -14,19 +14,16 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->string('project_name')->nullable();
+
+            $table->foreignId('project_id')
+                ->constrained('projects')
+                ->cascadeOnDelete();
+
             $table->string('file_path');
-            $table->decimal('approved_budget', 15, 2);
-            $table->foreignId('user_id')->constrained();
-            $table->foreignId('division_id')->constrained();
-            $table->decimal('contract_price', 15, 2)->nullable();
-            $table->decimal('savings', 15, 2)->nullable();
-            $table->foreignId('status_id')->constrained();
-            $table->string('contract_number')->unique();
-            $table->date('contract_date')->nullable();
-            $table->date('delivered_date')->nullable();
-            $table->enum('quarter',['EPA/1ST', 'EPA/2ND', '1ST', '2ND', '3RD', '4TH']);
-            $table->enum('update', ['installed', 'renewed', 'delivered', 'successful_bid', 'cancelled', 'pending', 'obligated'])->nullable();
+
+            $table->foreignId('user_id')
+                ->constrained('users');
+
             $table->timestamps();
         });
     }

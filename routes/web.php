@@ -7,6 +7,7 @@ use App\Models\User; //users
 
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController; // controleer s for the login
+use App\Http\Controllers\DivisionController;
 
 Route::get('/', function () {
     return view('home');
@@ -16,24 +17,26 @@ Route::get('/', function () {
 // v2
 Route::post("/form_login", [AuthController::class, "login"])->name("form-login");
 
-Route::middleware("auth")->group(function () {
+Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
+    Route::middleware('auth')->group(function () {
 
-    Route::get("/division", function () {
-        $user = Auth::user();
+    Route::get('/division', [DivisionController::class, 'admin'])
+        ->middleware('role:admin')
+        ->name('division.admin');
 
-        return view("division", [
-            "email" => $user->email,
-            "role" => $user->role,
-        ]);
-    });
-
-    Route::prefix("division")->group(function () {
-        Route::get("/niisd", fn () => view("division.niisd"));
-        Route::get("/database", fn () => view("division.database"));
-        Route::get("/development", fn () => view("division.development"));
-    });
+    Route::get('/division/{name}', [DivisionController::class, 'show'])
+        ->whereIn('name', ['niisd', 'database', 'development'])
+        ->middleware('division')
+        ->name('division.show');
 
 });
+
+// logout
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+});
+
+
 
 // register
 
@@ -90,8 +93,6 @@ Route::post("/register_user", [AuthController::class, "register"])->name("form-r
 //     return  "Registered Sucessfully!";
     
 // })->name("form-register");
-
-// Division TODO: Groups
 
 // Route::prefix('division')->group(function () {
 
