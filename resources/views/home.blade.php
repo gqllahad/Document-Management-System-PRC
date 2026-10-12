@@ -16,7 +16,7 @@
                 <img src="{{ asset('images/logo.jpg') }}" alt="">
             </div>
 
-            <h1>Document Management System</h1>
+            <h1>ICTS Project Procurement Monitoring System</h1>
 
             <p>
                 Securely manage, organize, and access your documents
@@ -39,10 +39,10 @@
                 </p>
             </div>
 
-            <!-- error handling -->
+            <!-- error handling
             @if ($errors->any())
                 <p>{{ $errors->first() }}</p>
-            @endif
+            @endif -->
 
             <form action="{{ route('form-login') }}" method="POST">
                 @csrf

@@ -17,6 +17,7 @@ class DivisionSeeder extends Seeder
             'NIISD',
             'DMSD',
             'SDMD',
+            'ICTS-OD',
         ];
 
         foreach ($divisions as $division) {

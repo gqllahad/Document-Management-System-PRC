@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController; // controleer s for the login
 use App\Http\Controllers\DivisionController;
 
+use App\Http\Controllers\AdminController;
+
 Route::get('/', function () {
     return view('home');
 })->name("home");
@@ -25,9 +27,13 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
         ->name('division.admin');
 
     Route::get('/division/{name}', [DivisionController::class, 'show'])
-        ->whereIn('name', ['niisd', 'database', 'development'])
+        ->whereIn('name', ['niisd', 'database', 'development', 'ict'])
         ->middleware('division')
         ->name('division.show');
+
+    Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])
+    ->middleware('role:admin')
+    ->name('admin.users.role');
 
 });
 
@@ -43,6 +49,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/register_user', [AuthController::class, 'showDivision'])->name('register');
 
 Route::post("/register_user", [AuthController::class, "register"])->name("form-register");
+
+
+// admin manage user
+Route::get('/admin/manage-users', [
+    AdminController::class,
+    'manage_users'
+])->middleware('auth')->name('admin.manage_users');
 
 // v1
 // Route::post("/form_login", function (Request $request){

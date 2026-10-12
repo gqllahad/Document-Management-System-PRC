@@ -21,6 +21,7 @@ class AdminSeeder extends Seeder // run seed php artisan db:seed --class=AdminSe
                 'password' => Hash::make('qwertyuiop'),
                 'role' => 'admin',
                 'division_id' => null,
+                'status' => 'active',
             ]
         );
     }

@@ -1,4 +1,4 @@
-<div class="brand"><i class="bi bi-file-earmark-text"></i><span>DMS</span></div>
+<div class="brand"><i class="bi bi-file-earmark-text"></i><span>ICTS PPMS</span></div>
 
 <nav class="nav">
     <a href="{{ url('/division') }}" class="{{ request()->is('division') ? 'active' : '' }}">
@@ -8,12 +8,16 @@
 
     <p class="nav-label">Divisions</p>
     <a href="{{ url('/division/niisd') }}" class="{{ request()->is('division/niisd') ? 'active' : '' }}"><i class="bi bi-diagram-3"></i><span>NIISD</span></a>
-    <a href="{{ url('/division/database') }}" class="{{ request()->is('division/database') ? 'active' : '' }}"><i class="bi bi-database"></i><span>Database</span></a>
-    <a href="{{ url('/division/development') }}" class="{{ request()->is('division/development') ? 'active' : '' }}"><i class="bi bi-hdd-network"></i><span>Development</span></a>
-
+    <a href="{{ url('/division/database') }}" class="{{ request()->is('division/database') ? 'active' : '' }}"><i class="bi bi-database"></i><span>DMSD</span></a>
+    <a href="{{ url('/division/development') }}" class="{{ request()->is('division/development') ? 'active' : '' }}"><i class="bi bi-hdd-network"></i><span>SDMD</span></a>
+    <a href="{{ url('/division/ict') }}" class="{{ request()->is('division/ict') ? 'active' : '' }}"><i class="bi bi-building"></i><span>ICT-OD</span></a>
+    
     <p class="nav-label">Admin</p>
+
     <a href="#"><i class="bi bi-clock-history"></i><span>Activity Logs</span></a>
-    <a href="#"><i class="bi bi-people"></i><span>Users</span></a>
+
+    
+    <a href="{{ route('admin.manage_users') }}" class="{{ request()->routeIs('admin.manage_users') ? 'active' : '' }}"><i class="bi bi-people"></i><span>Manage Users</span></a>
 </nav>
 
 <div class="nav nav-bottom">

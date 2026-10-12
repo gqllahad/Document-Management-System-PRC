@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'division_id',
         'role',
+        'status',
     ];
 
     public function division()
