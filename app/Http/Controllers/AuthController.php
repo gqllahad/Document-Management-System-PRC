@@ -31,7 +31,7 @@ class AuthController extends Controller
             }
 
             if ($user->role === 'admin') {
-                return redirect('/division');
+                return redirect()->route('admin.dashboard');
             }
 
             if (!in_array($user->role, ['head', 'fund_controller'])) {
@@ -66,6 +66,8 @@ class AuthController extends Controller
 
         ]);
 
+        User::create($credentials);
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -75,7 +77,7 @@ class AuthController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('home');
+        return redirect()->route('home')->with('success', "Account registered, Waiting for approval.");
     }
 
     public function showDivision()

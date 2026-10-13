@@ -28,7 +28,7 @@
         <span>© {{ date('Y') }} Document Management System</span>
         <span>All rights reserved.</span>
     </footer>
-@include('partials.toast')
+@include('partials.login-toast')
 </body>
 
 </html>

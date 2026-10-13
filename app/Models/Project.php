@@ -22,6 +22,10 @@ class Project extends Model
         'update_type',
     ];
 
+    public const QUARTERS = ['EPA/1ST', 'EPA/2ND', '1ST', '2ND', '3RD', '4TH'];
+
+    public const UPDATES = ['installed', 'renewed', 'delivered', 'successful_bid', 'cancelled', 'pending', 'obligated'];
+
     public function documents(): HasMany
     {
         return $this->hasMany(Documents::class);

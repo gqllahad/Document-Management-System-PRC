@@ -4,5 +4,5 @@
 @section('division', 'SDMD')
 
 @section('main-content')
-    <div class="card">SDMD documents</div>
+     
 @endsection

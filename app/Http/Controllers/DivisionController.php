@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Division;
+use App\Models\Project;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,17 +15,20 @@ class DivisionController extends Controller
     {
         $user = Auth::user();
 
-        return view('division.division', [
-            'email' => $user->email,
-            'role'  => $user->role,
-        ]);
+        return view('admin.dashboard');
     }
 
-    public function show(string $name)
+    public function show($name)
     {
-        return view('division.' . $name);
-    }
+        $division = Division::whereRaw('LOWER(name) = ?', [$name])->firstOrFail();
 
+        $projects = Project::with('status')
+            ->where('division_id', $division->id)
+            ->latest()
+            ->paginate(10);
+
+        return view("division.{$name}.index", compact('division', 'projects'));
+    }
 
     /**
      * Display a listing of the resource.

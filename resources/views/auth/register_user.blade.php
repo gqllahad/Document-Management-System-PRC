@@ -14,9 +14,9 @@
             </p>
         </div>
 
-        @if ($errors->any())
+        <!-- @if ($errors->any())
             <p>{{ $errors->first() }}</p>
-        @endif
+        @endif -->
         
         <form action="{{ route('form-register') }}" method="POST" class="auth-form">
             @csrf

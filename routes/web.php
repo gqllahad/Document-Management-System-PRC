@@ -8,6 +8,7 @@ use App\Models\User; //users
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController; // controleer s for the login
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\ProjectController;
 
 use App\Http\Controllers\AdminController;
 
@@ -22,27 +23,35 @@ Route::post("/form_login", [AuthController::class, "login"])->name("form-login")
 Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
     Route::middleware('auth')->group(function () {
 
-    Route::get('/division', [DivisionController::class, 'admin'])
-        ->middleware('role:admin')
-        ->name('division.admin');
+    // logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // admin
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/admin/dashboard', [DivisionController::class, 'admin'])->name('admin.dashboard');
+        Route::get('/admin/manage_users', [AdminController::class, 'manage_users'])->name('admin.manage_users');
+        Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
+    });
+
+    // divisions
     Route::get('/division/{name}', [DivisionController::class, 'show'])
-        ->whereIn('name', ['niisd', 'database', 'development', 'ict'])
+        ->whereIn('name', ['niisd', 'dmsd', 'sdmd', 'icts-od'])
         ->middleware('division')
         ->name('division.show');
 
-    Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])
-    ->middleware('role:admin')
-    ->name('admin.users.role');
+    // projects creation
+    Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+
+    // Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])
+    // ->middleware('role:admin')
+    // ->name('admin.users.role');
 
 });
 
-// logout
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
 });
-
-
 
 // register
 
@@ -52,10 +61,10 @@ Route::post("/register_user", [AuthController::class, "register"])->name("form-r
 
 
 // admin manage user
-Route::get('/admin/manage-users', [
-    AdminController::class,
-    'manage_users'
-])->middleware('auth')->name('admin.manage_users');
+// Route::get('/admin/manage-users', [
+//     AdminController::class,
+//     'manage_users'
+// ])->middleware('auth')->name('admin.manage_users');
 
 // v1
 // Route::post("/form_login", function (Request $request){

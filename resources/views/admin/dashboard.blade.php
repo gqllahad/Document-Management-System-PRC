@@ -6,5 +6,5 @@
 @section('sidebar') @include('partials.sidebar-admin') @endsection
 
 @section('main-content')
-    <div class="card">Dashboard content here</div>
+    
 @endsection
