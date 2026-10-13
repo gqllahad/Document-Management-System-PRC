@@ -39,19 +39,6 @@
 
             <main>
                 
-            <div class="page-head">
-                <div>
-                    <h2>Dashboard</h2>
-                    @if(auth()->user()->role != 'admin')
-                        <p>{{ Str::upper($division->name) }} - Procurement Projects Monitoring System</p>
-                    @else
-                        <p>Procurement Projects Monitoring System</p>
-                    @endif
-                </div>
-            </div>
-            
-            <div class="card">Summary cards coming here</div>    
-            
             @yield('main-content')</main>
 
             <footer>@yield('footer')</footer>

@@ -25,6 +25,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             DivisionSeeder::class,
             AdminSeeder::class,
+            StatusSeeder::class,
         ]);
     }
 }

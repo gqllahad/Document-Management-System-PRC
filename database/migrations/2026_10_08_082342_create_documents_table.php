@@ -24,6 +24,8 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained('users');
 
+            $table->string('document_type')->nullable();
+
             $table->timestamps();
         });
     }

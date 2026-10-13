@@ -66,8 +66,6 @@ class AuthController extends Controller
 
         ]);
 
-        User::create($credentials);
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -82,7 +80,12 @@ class AuthController extends Controller
 
     public function showDivision()
     {
-        $divisions = Division::all();
+        // $divisions = Division::all();
+
+        $divisions = Division::orderByRaw("CASE WHEN name = 'ICTS-OD' THEN 0 ELSE 1 END")
+        ->orderBy('name', 'asc')
+        ->get();
+
         return view('auth.register_user', compact('divisions'));
     }
 

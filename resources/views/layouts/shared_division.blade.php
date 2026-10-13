@@ -1,4 +1,4 @@
-@extends('layouts.default_main')
+@extends('layouts.default_division')
 
 @if (auth()->user()->role === 'admin')
     @section('sidebar-class', 'sidebar-admin')

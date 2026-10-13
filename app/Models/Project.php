@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use SoftDeletes;
 
 class Project extends Model
 {
@@ -19,7 +20,10 @@ class Project extends Model
         'contract_date',
         'delivered_date',
         'quarter',
-        'update_type',
+        'update',
+        'remarks',
+        'status_date',
+
     ];
 
     public const QUARTERS = ['EPA/1ST', 'EPA/2ND', '1ST', '2ND', '3RD', '4TH'];

@@ -27,6 +27,13 @@ class DivisionController extends Controller
             ->latest()
             ->paginate(10);
 
+            $user = Auth::user();
+
+            abort_unless(
+                $user->role === 'admin' || $user->division_id === $division->id,
+                403
+            );
+
         return view("division.{$name}.index", compact('division', 'projects'));
     }
 

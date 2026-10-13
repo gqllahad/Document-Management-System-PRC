@@ -3,3 +3,9 @@
 @section('role', 'User')
 @section('sidebar-class', 'sidebar-division')
 @section('sidebar') @include('partials.sidebar-divisions') @endsection
+
+@section('title', 'Dashboard')
+
+@section('main-content')
+
+@endsection

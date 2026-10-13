@@ -23,12 +23,16 @@ return new class extends Migration
             $table->decimal('approved_budget', 15, 2);
             $table->decimal('contract_price', 15, 2)->nullable();
 
-            $table->string('contract_number')->unique();
+            $table->string('contract_number')->nullable()->unique();
             $table->date('contract_date')->nullable();
             $table->date('delivered_date')->nullable();
 
             $table->enum('quarter',['EPA/1ST', 'EPA/2ND', '1ST', '2ND', '3RD', '4TH']);
-            $table->enum('update', ['installed', 'renewed', 'delivered', 'successful_bid', 'cancelled', 'pending', 'obligated'])->nullable();
+            $table->string('update')->nullable();
+            $table->date('status_date')->nullable();
+            $table->text('remarks')->nullable();
+
+            $table->softDeletes();
 
             $table->timestamps();
         });

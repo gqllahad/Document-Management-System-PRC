@@ -40,10 +40,12 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
         ->name('division.show');
 
     // projects creation
-    Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
-    Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
-    Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-    Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+    // Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    // Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+    // Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    // Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+
+    Route::resource('projects', ProjectController::class);
 
     // Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])
     // ->middleware('role:admin')

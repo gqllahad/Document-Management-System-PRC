@@ -1,8 +1,11 @@
+
+@php $div = strtolower($__env->yieldContent('division')); @endphp
+
 <div class="brand"><div class="logo"><img src="{{ asset('images/logo.jpg') }}" alt=""></div><span>ICTS PPMS</span></div>
 
 <nav class="nav">
-    <a href="{{ url('/division/' . strtolower(auth()->user()->division->name)) }}"
-    class="{{ request()->is('division/*') ? 'active' : '' }}">
+    <a href="{{ $div ? url('/division/' . $div) : url('/') }}"
+   class="{{ request()->is('division/*') && !request()->is('division/*/*') ? 'active' : '' }}">
         <i class="bi bi-speedometer2"></i><span>Dashboard</span>
     </a>
     <a href="{{ route('projects.index') }}" class="{{ request()->routeIs('projects.index', 'projects.show') ? 'active' : '' }}">
@@ -13,8 +16,8 @@
     
     <br><br><br><br><br>
 
-    <p class="nav-label">Workspace</p>
-    
+    <p class="nav-label">Division</p>
+
     <div class="nav-card">
         <span>{{ Str::upper(auth()->user()->division->name ?? '') }}</span>
         <small>Development workspace</small>
