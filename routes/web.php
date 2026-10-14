@@ -33,6 +33,11 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
         Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
     });
 
+    // head
+    // Route::middleware('role:head')->group(function (){
+    //     Route::get('');
+    // });
+
     // divisions
     Route::get('/division/{name}', [DivisionController::class, 'show'])
         ->whereIn('name', ['niisd', 'dmsd', 'sdmd', 'icts-od'])
@@ -46,6 +51,7 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
     // Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 
     Route::resource('projects', ProjectController::class);
+    Route::put('projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
 
     // Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])
     // ->middleware('role:admin')

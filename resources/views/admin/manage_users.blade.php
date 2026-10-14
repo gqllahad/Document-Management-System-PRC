@@ -10,6 +10,12 @@
         <h2>Manage Users</h2>
         <p>Manage registered users and assign their roles.</p>
     </div>
+
+    <div>
+        <button>
+            Add user
+        </button>
+    </div>
     <div class="search">
         <i class="bi bi-search"></i>
         <input type="search" id="userSearch" placeholder="Search name or email">

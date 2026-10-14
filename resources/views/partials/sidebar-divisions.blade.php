@@ -1,27 +1,25 @@
 
-@php $div = strtolower($__env->yieldContent('division')); @endphp
-
 <div class="brand"><div class="logo"><img src="{{ asset('images/logo.jpg') }}" alt=""></div><span>ICTS PPMS</span></div>
 
 <nav class="nav">
-    <a href="{{ $div ? url('/division/' . $div) : url('/') }}"
-   class="{{ request()->is('division/*') && !request()->is('division/*/*') ? 'active' : '' }}">
-        <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+    <a href="{{ auth()->user()->role === 'admin' ? route('admin.dashboard') : (auth()->user()->division ? route('division.show', strtolower(auth()->user()->division->name)) : url('/')) }}" class="{{ request()->routeIs('division.show', 'admin.dashboard') ? 'active' : '' }}">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
     </a>
     <a href="{{ route('projects.index') }}" class="{{ request()->routeIs('projects.index', 'projects.show') ? 'active' : '' }}">
         <i class="bi bi-folder2"></i><span>Procurement Projects</span>
     </a>
 
     <a href="#"><i class="bi bi-file-earmark-text"></i><span>Procurement Documents</span></a>
-    
     <br><br><br><br><br>
-
     <p class="nav-label">Division</p>
 
     <div class="nav-card">
         <span>{{ Str::upper(auth()->user()->division->name ?? '') }}</span>
         <small>Development workspace</small>
     </div>
+
+    <a href="#"><i class="bi bi-people"></i>Manage Users</a>
 
 </nav>
 
