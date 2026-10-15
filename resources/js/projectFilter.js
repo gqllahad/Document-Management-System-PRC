@@ -10,7 +10,7 @@ const messages = {
 
 
 function applyFilters() {
-    const q = search.value.toLowerCase();
+    const q = (search?.value ?? '').toLowerCase();
     let visible = 0;
 
     document.querySelectorAll('#projectTable tbody tr:not(.empty)').forEach((row) => {

@@ -4,7 +4,9 @@
     <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
         <i class="bi bi-speedometer2"></i><span>Dashboard</span>
     </a>
-    <a href="#"><i class="bi bi-folder2-open"></i><span>All Projects</span></a>
+    <a href="{{ route('admin.projects') }}" class="{{ request()->routeIs('admin.projects') ? 'active' : '' }}">
+        <i class="bi bi-folder2-open"></i><span>All Projects</span>
+    </a>
 
     <p class="nav-label">Divisions</p>
     <a href="{{ url('/division/niisd') }}" class="{{ request()->is('division/niisd') ? 'active' : '' }}"><i class="bi bi-diagram-3"></i><span>NIISD</span></a>

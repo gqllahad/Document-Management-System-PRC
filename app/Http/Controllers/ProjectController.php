@@ -20,6 +20,29 @@ class ProjectController extends Controller
 
         abort_if($user->role === 'admin' || ! $user->division_id, 403);
     }
+
+    // admin view
+    public function adminIndex()
+    {
+        $projects = Project::with(['division', 'status', 'latestUpdate', 'documents'])
+            ->latest()
+            ->paginate(15);
+
+        $statuses = Status::all();
+
+        return view('projects.index', compact('projects', 'statuses'));
+    }
+
+    // check contract validation (ajax someting)
+    public function checkContract(Request $request)
+    {
+        $taken = Project::withTrashed()
+            ->where('contract_number', ltrim((string) $request->number, '.'))
+            ->when($request->ignore, fn ($q, $id) => $q->where('id', '!=', $id))
+            ->exists();
+
+        return response()->json(['taken' => $taken]);
+    }
     /**
      * Display a listing of the resource.
      */
@@ -97,10 +120,14 @@ class ProjectController extends Controller
         $data = $request->validate([
             'project_name'    => 'required|string|max:255',
             'approved_budget' => 'required|numeric|min:0',
+            'project_type'     => ['required', Rule::in(Project::PROJECT_TYPES)],
+            'source_funds'     => ['required', Rule::in(Project::SOURCE_FUNDS)],
+            'expenses_classes' => ['required', Rule::in(Project::EXPENSES_CLASSES)],
         ]);
 
         Project::create($data + [
             'division_id' => Auth::user()->division_id,
+            'created_by'  => Auth::id(),
             'status_id' => Status::orderBy('sort_order')->value('id'),
         ]);
 
@@ -134,7 +161,7 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        logger($request->all());
+        // logger($request->all());
 
         $request->merge([
             'contract_price' => str_replace(',', '', $request->contract_price),
@@ -144,7 +171,7 @@ class ProjectController extends Controller
             'contract_number' => 'required|string|max:100|unique:projects,contract_number,' . $project->id,
             'contract_price'  => 'required|numeric|min:0|max:' . $project->approved_budget,
             'contract_date'   => 'required|date',
-            'period_type'     => 'required|in:quarter,epa',
+            'quarter'           => ['required', Rule::in(['EPA', '1ST', '2ND', '3RD', '4TH'])],
             'status_id'       => 'required|exists:statuses,id',
             'update'          => 'required|string|max:255',
             'status_date'     => 'required|date',
@@ -160,7 +187,7 @@ class ProjectController extends Controller
             'contract_price'  => $data['contract_price'],
             'contract_date'   => $date,
             'contract_number' => ltrim($data['contract_number'], '.'), //'CS-' . now()->format('n-Y') . '-' . 
-            'quarter' => $data['period_type'] === 'epa' ? 'EPA/1ST': ['1ST', '2ND', '3RD', '4TH'][$date->quarter - 1],
+            'quarter' => $data['quarter'],
             'fiscal_year'     => $date->year,
             'status_id'          => $data['status_id'],
         ]);
@@ -180,7 +207,7 @@ class ProjectController extends Controller
             'status_date' => $data['status_date'],
         ]);
 
-        return redirect()->route('projects.index');
+        return redirect()->route('projects.index')->with('success', 'Successfully updated project ('.  $project->project_name . ').');
     }
 
     /**

@@ -16,10 +16,10 @@
 
     <div class="nav-card">
         <span>{{ Str::upper(auth()->user()->division->name ?? '') }}</span>
-        <small>Development workspace</small>
+        <small>Procurement workspace</small>
     </div>
 
-    <a href="#"><i class="bi bi-people"></i>Manage Users</a>
+    <a href="#" class="nav-manage"><i class="bi bi-people"></i><span>Manage Users</span></a>
 
 </nav>
 

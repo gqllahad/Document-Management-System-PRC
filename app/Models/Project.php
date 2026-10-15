@@ -26,13 +26,20 @@ class Project extends Model
         'update',
         'remarks',
         'status_date',
+        'fiscal_year',
+        'project_type',
+        'source_funds',
+        'expenses_classes',
 
     ];
 
-    public const QUARTERS = ['EPA/1ST', 'EPA/2ND', '1ST', '2ND', '3RD', '4TH'];
+    public const QUARTERS = ['EPA', '1ST', '2ND', '3RD', '4TH'];
 
-    public const UPDATES = ['installed', 'renewed', 'delivered', 'successful_bid', 'cancelled', 'pending', 'obligated'];
+    public const UPDATES = ['installed/renewed', 'delivered', 'successful_bid', 'cancelled', 'pending', 'obligated'];
+    public const PROJECT_TYPES = ['Current','Modified',];
+    public const SOURCE_FUNDS = ['Current','Continuing',];
 
+    public const EXPENSES_CLASSES = ['MOOE','CO',];
 
     // variable init
     public function documents(): HasMany

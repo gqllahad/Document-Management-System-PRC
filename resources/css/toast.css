@@ -2,7 +2,7 @@
     position: fixed;
     right: 1.25rem;
     bottom: 1.25rem;
-    z-index: 1045;
+    z-index: 9999;
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
