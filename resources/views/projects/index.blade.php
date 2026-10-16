@@ -14,6 +14,7 @@
 
 </div>
 
+@php $isAdmin = auth()->user()->role === 'admin'; @endphp
 <div class="card table-card">
     <div class="table-head">
         <div>
@@ -21,37 +22,68 @@
              <small>Manage all procurement projects</small>
         </div>
         <div class="table-tools">
-            @if (auth()->user()->role !== 'admin')
+            @if (!$isAdmin)
                 <button type="button" class="btn-primary" data-drawer-open="projectDrawer">
                     <i class="bi bi-plus-lg"></i> New project
                 </button>
             @endif
 
-            <div class="search">
+            <div class="tools-top">
+                @if ($isAdmin)
+                    <select id="divisionFilter" class="filter-select">
+                        <option value="all">All divisions</option>
+                        @foreach ($divisions as $d)
+                            <option value="{{ $d->id }}">{{ $d->name }}</option>
+                        @endforeach
+                    </select>
+                @endif
+
+                <select id="typeFilter" class="filter-select">
+                    <option value="all">All types</option>
+                    <option value="Current">Current</option>
+                    <option value="Modified">Modification</option>
+                </select>
+            </div>
+
+            <!-- <div class="search">
                 <i class="bi bi-search"></i>
                 <input type="search" id="projectSearch" placeholder="Search project..">
-            </div>
+            </div> -->
         </div>
+            
     </div>
 
-    <div class="filter-buttons">
-        <button type="button" class="active" data-filter="all">All Projects</button>
-        <button type="button" data-filter="awaiting">Awaiting Contract</button>
-        <button type="button" data-filter="recorded">Recorded Contract</button>
+    <div class="tools-bottom">
+        <div class="filter-buttons">
+            <button type="button" class="active" data-filter="all">All projects <span>{{ $counts['all'] }}</span></button>
+            <button type="button" data-filter="awaiting">Awaiting contract <span>{{ $counts['awaiting'] }}</span></button>
+            <button type="button" data-filter="recorded">Contract recorded <span>{{ $counts['recorded'] }}</span></button>
+        </div>
+
+        <div class="search">
+            <i class="bi bi-search"></i>
+            <input type="search" id="projectSearch" placeholder="Search project..">
+        </div>
     </div>
 
     <div class="table-wrap">
         <table class="table" id="projectTable">
             <thead>
                 <tr>
-                    <th>Project Name</th>
-                    @if (auth()->user()->role === 'admin') <th>Division</th> @endif
-                    <th class="num">Approved Budget of Contract</th>
-                    <th class="num">Contract Price</th>
-                    <th class="num">Savings</th>
-                    <th>Status</th>
+                    <th>Project</th>
+                <!-- @if ($isAdmin) <th>Division</th> @endif -->
+                    <th class="num">Budget & Contract</th>
+
+                <!-- @if (auth()->user()->role === 'admin')
+                    <th class="num">Contract P.</th>
+                    <th class="num">Savings</th> 
+                @endif -->
+                    <th class="col-status">Current Status</th>
+                <!-- @if (auth()->user()->role === 'admin')
                     <th>Contract No.</th>
-                    <th>Contract Date</th>
+                @else 
+                    <th>Project Type</th>
+                @endif -->
                     <th>Quarter</th>
                     <th>Update</th>
                     <th>Action</th>
@@ -59,18 +91,61 @@
             </thead>
             <tbody>
                 @forelse ($projects as $project)
-                    <tr>
+                    
+                    @php
+                        $code = 'PRJ-' . $project->created_at->year . '-' . str_pad($project->id, 3, '0', STR_PAD_LEFT);
+                        $u = $project->latestUpdate;
+                    @endphp
+
+                    <tr data-contract="{{ $project->contract_number ? 'recorded' : 'awaiting' }}" 
+                    data-division="{{ $project->division_id }}"
+                    data-type="{{ $project->project_type }}">
+
                         <td>
-                            <strong>{{ $project->project_name }}</strong>
-                            <small class="tb_small">PRJ-{{ $project->created_at->year }}-{{ str_pad($project->id, 3, '0', STR_PAD_LEFT) }}</small>
+                            <div class="p-name">{{ $project->project_name }}</div>
+                            <div class="p-meta">
+                                <span>{{ $code }}</span>
+                                @if ($project->contract_number && $isAdmin)
+                                    <span class="pill pill-green"><i class="bi bi-file-earmark"></i> {{ $project->contract_number }}</span>
+                                @else
+                                    <span class="pill pill-amber"><i class="bi bi-clock"></i> No contract yet</span>
+                                @endif
+                            </div>
+                            
+                            <div class="p-meta">
+                                @if ($isAdmin)
+                                    <span class="pill pill-div">{{ Str::upper($project->division->name) }}</span>
+                                @endif
+                                @if ($project->project_type)
+                                    <span>{{ $project->project_type }}</span>
+                                @endif
+                            </div>
+                            <!-- <small class="tb_small">PRJ-{{ $project->created_at->year }}-{{ str_pad($project->id, 3, '0', STR_PAD_LEFT) }}</small> -->
                         </td>
-                        @if (auth()->user()->role === 'admin')
+                    <!-- @if (auth()->user()->role === 'admin')
                             <td><span class="pill pill-div">{{ Str::upper($project->division->name) }}</span></td>
-                        @endif
-                        <td class="num">₱{{ number_format($project->approved_budget, 2) }}</td>
+                    @endif -->
+
+                        <td>
+                            <div class="amt"><span>ABC</span><strong>₱{{ number_format($project->approved_budget, 2) }}</strong></div>
+                            <div class="amt">
+                                <span>Contract</span>
+                                @if ($project->contract_price !== null)
+                                    <strong>₱{{ number_format($project->contract_price, 2) }}</strong>
+                                @else
+                                    <em>Pending</em>
+                                @endif
+                            </div>
+                            @if ($project->savings !== null)
+                                <div class="amt savings"><span>Savings</span><strong>₱{{ number_format($project->savings, 2) }}</strong></div>
+                            @endif
+                        </td>
+                        <!-- <td class="num">₱{{ number_format($project->approved_budget, 2) }}</td>
                         <td class="num {{ $project->contract_price === null ? 'text-muted' : '' }}">{{ $project->contract_price !== null ? '₱' . number_format($project->contract_price, 2) : 'Pending' }}</td>
-                        <td class="num">{{ $project->savings !== null ? '₱' . number_format($project->savings, 2) : '—' }}</td>
-                       <td class="update-cell">
+                        <td class="num">{{ $project->savings !== null ? '₱' . number_format($project->savings, 2) : '—' }}</td> -->
+
+
+                       <td class="update-cell col-status">
                             @php $u = $project->latestUpdate; @endphp
                             @if ($u)
                                 @if ($u->created_at->gt(now()->subDays(2)))
@@ -82,9 +157,18 @@
                                 <span class="text-muted">No updates yet</span>
                             @endif
                         </td>
+
+
+                    <!-- @if (auth()->user()->role === 'admin')
                         <td>{{ $project->contract_number? '' . $project->contract_number : '—' }}</td>
+                        
+                    @else
                         <td>{{ $project->contract_date?->format('M d, Y') ?? '—' }}</td>
-                        <td>{{ $project->quarter ?? '—' }}{{ $project->fiscal_year ? ' · ' . $project->fiscal_year : '' }}</td>
+                        <td>{{ $project->project_type? '' . $project->project_type : '—' }}</td>
+                    @endif -->
+
+                        <td>{{ collect([$project->quarter, $project->fiscal_year ?? $project->contract_date?->year])->filter()->implode(' · ') ?: '—' }}</td>
+
                         <td><span class="pill pill-role">{{ $project->status->name ?? '—' }}</span></td>
                        
                         <td class="actions">
@@ -107,9 +191,9 @@
                                     'url'  => Storage::url($d->path),
                                     'size' => Storage::disk('public')->exists($d->path) ? Storage::disk('public')->size($d->path) : null,
                                 ])->toJson() }}">
-                                <i class="bi bi-folder2-open"></i> View
+                                 View
                             </button>
-                             @if (auth()->user()->role !== 'admin')
+                        @if (!$isAdmin)
                             <button type="button" class="btn-sm" data-continue
                                 data-action="{{ route('projects.update', $project) }}"
                                 data-id="{{ $project->id }}"

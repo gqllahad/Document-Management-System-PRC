@@ -24,13 +24,26 @@ class ProjectController extends Controller
     // admin view
     public function adminIndex()
     {
+        $user = Auth::user();
+        
         $projects = Project::with(['division', 'status', 'latestUpdate', 'documents'])
             ->latest()
             ->paginate(15);
+        
+        $base = Project::query()
+        ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id));
 
         $statuses = Status::all();
+        $divisions = Division::orderBy('name')->get();
+        
 
-        return view('projects.index', compact('projects', 'statuses'));
+        $counts = [
+            'all'      => (clone $base)->count(),
+            'awaiting' => (clone $base)->whereNull('contract_number')->count(),
+            'recorded' => (clone $base)->whereNotNull('contract_number')->count(),
+        ];
+
+        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts'));
     }
 
     // check contract validation (ajax someting)
@@ -50,19 +63,22 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
 
-        $projects = Project::with(['status', 'division'])
-            ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id))
-            ->latest()
-            ->paginate(10);
-
-        $statuses = Status::orderBy('sort_order')->get();
-
         $projects = Project::with(['status', 'division', 'latestUpdate'])
         ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id))
         ->latest()
         ->paginate(10);
 
-        return view('projects.index', compact('projects', 'statuses'));
+        $statuses = Status::orderBy('sort_order')->get();
+
+        $divisions = Division::orderBy('name')->get();
+
+        $counts = [
+            'all'      => (clone $projects)->count(),
+            'awaiting' => (clone $projects)->whereNull('contract_number')->count(),
+            'recorded' => (clone $projects)->whereNotNull('contract_number')->count(),
+        ];
+
+        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts'));
     }
 
     /**

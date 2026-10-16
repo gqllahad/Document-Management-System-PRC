@@ -1,6 +1,8 @@
 const search = document.getElementById('projectSearch');
 const buttons = document.querySelectorAll('.filter-buttons button');
 let filter = 'all';
+const divisionSel = document.getElementById('divisionFilter');
+const typeSel = document.getElementById('typeFilter');
 
 const messages = {
     all: 'No matching projects.',
@@ -16,7 +18,10 @@ function applyFilters() {
     document.querySelectorAll('#projectTable tbody tr:not(.empty)').forEach((row) => {
         const matchSearch = row.textContent.toLowerCase().includes(q);
         const matchFilter = filter === 'all' || row.dataset.contract === filter;
-        const show = matchSearch && matchFilter;
+        const matchDivision = !divisionSel || divisionSel.value === 'all' || row.dataset.division === divisionSel.value;
+        const matchType = typeSel.value === 'all' || row.dataset.type === typeSel.value;
+        const show = matchSearch && matchFilter && matchDivision && matchType;
+
         row.hidden = !show;
         if (show) visible++;
     });
@@ -29,6 +34,8 @@ function applyFilters() {
 }
 
 search?.addEventListener('input', applyFilters);
+divisionSel?.addEventListener('change', applyFilters);
+typeSel?.addEventListener('change', applyFilters);
 
 buttons.forEach((btn) => {
     btn.addEventListener('click', () => {
