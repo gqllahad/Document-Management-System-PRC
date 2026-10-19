@@ -36,7 +36,7 @@
 
     <div class="filter-buttons">
         <button type="button" class="active" data-filter="all">All Projects</button>
-        <button type="button" data-filter="awaiting">Awaiting Contract</button>
+        <button type="button" data-filter="pending">Pending Contract</button>
         <button type="button" data-filter="recorded">Recorded Contract</button>
     </div>
 
@@ -59,7 +59,7 @@
             </thead>
             <tbody>
                 @forelse ($projects as $project)
-                    <tr>
+                    <tr data-contract="{{ $project->contract_number ? 'recorded' : 'pending' }}">
                         <td>
                             <strong>{{ $project->project_name }}</strong>
                             <small class="tb_small">PRJ-{{ $project->created_at->year }}-{{ str_pad($project->id, 3, '0', STR_PAD_LEFT) }}</small>
@@ -287,16 +287,6 @@
                     @error('source_funds') <small class="err">{{ $message }}</small> @enderror
                 </div>
 
-                <div class="field">
-                    <label for="expenses_classes">Expense class <b>*</b></label>
-                    <select id="expenses_classes" name="expenses_classes" required>
-                        <option value="" disabled {{ old('expenses_classes') ? '' : 'selected' }}>Select class</option>
-                        @foreach (\App\Models\Project::EXPENSES_CLASSES as $v)
-                            <option value="{{ $v }}" @selected(old('expenses_classes') === $v)>{{ $v }}</option>
-                        @endforeach
-                    </select>
-                    @error('expenses_classes') <small class="err">{{ $message }}</small> @enderror
-                </div>
             </div>
             
             <div class="drawer-note">

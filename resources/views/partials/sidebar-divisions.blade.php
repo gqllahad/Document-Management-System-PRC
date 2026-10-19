@@ -19,8 +19,6 @@
         <small>Procurement workspace</small>
     </div>
 
-    <a href="#" class="nav-manage"><i class="bi bi-people"></i><span>Manage Users</span></a>
-
 </nav>
 
 <div class="nav nav-bottom">

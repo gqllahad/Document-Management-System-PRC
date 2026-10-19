@@ -122,7 +122,8 @@ class ProjectController extends Controller
             'approved_budget' => 'required|numeric|min:0',
             'project_type'     => ['required', Rule::in(Project::PROJECT_TYPES)],
             'source_funds'     => ['required', Rule::in(Project::SOURCE_FUNDS)],
-            'expenses_classes' => ['required', Rule::in(Project::EXPENSES_CLASSES)],
+            'winning_bidder' => ['nullable', 'string', 'max:255'],
+            'delivery_period' => ['nullable', 'integer', 'min:1', 'max:120'],
         ]);
 
         Project::create($data + [

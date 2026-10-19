@@ -350,7 +350,7 @@ ms_modal?.addEventListener('click', (e) => {
             const done = !!(d.contractNumber && d.contractDate && d.period);
             const tag = document.getElementById('vRecTag');
             tag.classList.toggle('pending', !done);
-            tag.lastChild.textContent = done ? ' Recorded' : ' Awaiting contract';
+            tag.lastChild.textContent = done ? ' Recorded' : 'Pending';
             show('vStatusDate', d.statusDate || 'Status date not recorded');
             // show('vUpdate', d.update);
             show('vUpdate', d.update || 'No update recorded yet');
