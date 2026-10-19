@@ -21,7 +21,7 @@ class Project extends Model
         'contract_price',
         'contract_number',
         'contract_date',
-        'delivered_date',
+        'actual_date_of_delivery',
         'quarter',
         'update',
         'remarks',
@@ -29,15 +29,15 @@ class Project extends Model
         'fiscal_year',
         'project_type',
         'source_funds',
-        'expenses_classes',
-
+        'winning_bidder',
+        'delivery_period',
     ];
 
     public const QUARTERS = ['EPA', '1ST', '2ND', '3RD', '4TH'];
 
     public const UPDATES = ['installed/renewed', 'delivered', 'successful_bid', 'cancelled', 'pending', 'obligated'];
     public const PROJECT_TYPES = ['Current','Modified',];
-    public const SOURCE_FUNDS = ['Current','Continuing',];
+    public const SOURCE_FUNDS = ['MMOE - Current Fund','MMOE - Continuing Fund', 'Capital Outlay - Current Fund', 'Capital Outlay - Continuing Fund'];
 
     public const EXPENSES_CLASSES = ['MOOE','CO',];
 
@@ -72,8 +72,9 @@ class Project extends Model
     {
         return [
             'contract_date'  => 'date',
-            'delivered_date' => 'date',
+            'actual_date_of_delivery' => 'date',
             'status_date'    => 'date',
+            'delivery_period' => 'integer',
         ];
     }
 
