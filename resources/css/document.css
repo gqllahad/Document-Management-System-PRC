@@ -1,0 +1,54 @@
+
+/* delete */
+
+.doc-list li {           
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.doc-list li a {
+    flex: 1;
+    min-width: 0;          
+}
+
+.doc-list li form {
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.doc-delete {
+    border: none;
+    background: transparent;
+    color: #dc3545;
+    padding: 8px;
+    cursor: pointer;
+    line-height: 1;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    transition: background .15s, color .15s;
+}
+
+.doc-delete:hover {
+    color: #a71d2a;
+    background: rgba(220, 53, 69, .1);
+}
+
+
+
+ul li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+ul li a {
+    flex: 1;
+    min-width: 0;
+   
+}
+
+ul li form {
+    margin: 0;
+    flex-shrink: 0;
+}

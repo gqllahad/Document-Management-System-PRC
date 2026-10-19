@@ -6,7 +6,7 @@ const typeSel = document.getElementById('typeFilter');
 
 const messages = {
     all: 'No matching projects.',
-    awaiting: 'No projects awaiting contract.',
+    awaiting: 'No projects pending contract.',
     recorded: 'No projects with recorded contract.',
 };
 

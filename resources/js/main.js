@@ -1,19 +1,11 @@
 import './toast.js';
 import './projectFilter.js';
 import './stringToNumber.js';
+import './review.js';
+import './manageUser.js';
 
 const toggle = document.getElementById('sidebarToggle');
 const app = document.querySelector('.app');
-
-// user management
-const ms_modal = document.getElementById('roleModal');
-const ms_form = document.getElementById('roleForm');
-const ms_save = document.getElementById('mSave');
-const ms_warn = document.getElementById('mWarn');
-
-let ms_current = {};
-
-const ms_pick = (name) => ms_form.querySelector(`input[name="${name}"]:checked`)?.value;
 
 window.addEventListener('pageshow', (e) => {
     if (e.persisted) location.reload();
@@ -27,57 +19,10 @@ toggle?.addEventListener('click', () => {
     localStorage.setItem('sidebar', app.classList.contains('collapsed') ? 'collapsed' : 'open');
 });
 
-// manage users (searchss)
-document.getElementById('userSearch')?.addEventListener('input', (e) => {
-    const q = e.target.value.toLowerCase();
-    document.querySelectorAll('#userTable tbody tr:not(.empty)').forEach((row) => {
-        row.hidden = !row.textContent.toLowerCase().includes(q);
-    });
-});
-
-document.querySelectorAll('.manage-user').forEach((btn) => {
-    btn.addEventListener('click', () => {
-        const { action, name, email, role, status } = btn.dataset;
-        ms_current = { role, status };
-
-        ms_form.action = action;
-        document.getElementById('mName').textContent = name;
-        document.getElementById('mEmail').textContent = email;
-        document.getElementById('mAvatar').textContent = name.charAt(0).toUpperCase();
-
-        ms_form.querySelectorAll('input[name="role"]').forEach((r) => (r.checked = r.value === role));
-        ms_form.querySelectorAll('input[name="status"]').forEach((r) => (r.checked = r.value === status));
-
-        ms_warn.hidden = status !== 'inactive';
-        ms_save.disabled = true;
-        ms_modal.showModal();
-    });
-});
-
-ms_form?.addEventListener('change', (e) => {
-    if (e.target.name === 'role' && ms_current.status === 'pending') {
-        ms_form.querySelector('input[name="status"][value="active"]').checked = true;
-    }
-
-    const role = ms_pick('role');
-    const status = ms_pick('status');
-
-    ms_warn.hidden = status !== 'inactive';
-    ms_save.disabled = !role || !status || (role === ms_current.role && status === ms_current.status);
-});
-
-ms_modal?.addEventListener('click', (e) => {
-    if (e.target === ms_modal || e.target.closest('[data-close]')) ms_modal.close();
-});
-
 // projecct
-
 (() => {
     const backdrop = document.getElementById('projectDrawerBackdrop');
-    const drawers = document.querySelectorAll('.drawer');
-
-    // onigo
-   
+    const drawers = document.querySelectorAll('.drawer');   
 
     drawers.forEach(d => { if (!d.classList.contains('open')) d.inert = true; });
     if (document.querySelector('.drawer.open')) document.body.classList.add('no-scroll');
@@ -142,26 +87,6 @@ ms_modal?.addEventListener('click', (e) => {
         const q = form.elements.quarter;
         const contractDate = form.elements.contract_date;
 
-        // const out = document.getElementById('periodOut');
-
-        // const period = () => {
-        //     if (!out) return;
-
-        //     const v = form.contract_date.value;
-
-        //     if (!v) {
-        //         out.textContent = '—';
-        //         return;
-        //     }
-
-        //     const dt = new Date(v);
-        //     const y = dt.getFullYear();
-
-        //     out.textContent = form.period_type.value === 'epa'
-        //         ? `EPA · ${y}`
-        //         : `Q${Math.ceil((dt.getMonth() + 1) / 3)} · ${y}`;
-        // };
-
         document.querySelectorAll('[data-continue]').forEach(b => {
             b.onclick = () => {
                 const d = b.dataset;
@@ -171,12 +96,35 @@ ms_modal?.addEventListener('click', (e) => {
                 setContractErr('');
                 // period();
 
+                const toStage3 = document.getElementById('toStage3');
+                const contractEls = ['contract_number', 'contract_price', 'contract_date', 'quarter', 'winning_bidder'].map(n => form.elements[n]);
+                const progressEls = ['status_id', 'update', 'status_date'].map(n => form.elements[n]);
+                const setReq = (contract, progress) => {
+                    contractEls.forEach(el => el.required = contract);
+                    progressEls.forEach(el => el.required = progress);
+                };
+
                 const unlock = document.getElementById('unlockBtn');
+                const tag = document.getElementById('contractTag');
                 const locks = [
                     ['contract_number', d.contractNumber],
                     ['contract_price', d.price ? Number(d.price).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : ''],
                     ['contract_date', d.contractDate],
+                    ['winning_bidder', d.winningBidder],
                 ];
+
+                const setTag = done => {
+                    tag.textContent = done ? 'Recorded' : 'To be completed';
+                    tag.classList.toggle('tag-ok', done);
+                    tag.classList.toggle('tag-warn', !done);
+                };
+
+                let editing = false;
+
+                setTag(!!(d.contractNumber && d.price && d.contractDate && d.quarter && d.winningBidder));
+
+                const lock = () => {
+                editing = false;
 
                 locks.forEach(([name, val]) => {
                     const el = form.elements[name];
@@ -190,34 +138,31 @@ ms_modal?.addEventListener('click', (e) => {
                 q.classList.toggle('locked', !!d.quarter);
                 q.tabIndex = d.quarter ? -1 : 0;
 
-                // if (d.contractDate) form.querySelector(`[name="period_type"][value="${d.periodType}"]`).checked = true;
-                // seg.classList.toggle('locked', !!d.contractDate);
-                // period();
+                const done = !!(d.contractNumber && d.price && d.contractDate && d.quarter && d.winningBidder);
+                setTag(done ? 'Recorded' : 'To be completed', done);
 
-                const tag = document.getElementById('contractTag');
-                const setTag = done => {
-                    tag.textContent = done ? 'Recorded' : 'To be completed';
-                    tag.classList.toggle('tag-ok', done);
-                    tag.classList.toggle('tag-warn', !done);
-                };
-
-                setTag(!!(d.contractNumber && d.price && d.contractDate && d.quarter));
-
+                unlock.textContent = 'Edit';
                 unlock.hidden = !(locks.some(([, v]) => v) || d.quarter);
-                unlock.onclick = () => {
-                    locks.forEach(([name]) => {
-                        const el = form.elements[name];
-                        el.readOnly = false;
-                        el.classList.remove('locked');
-                    });
-                    q.classList.remove('locked');
-                    q.tabIndex = 0;
-                    unlock.hidden = true;
+            };
 
-                    tag.textContent = 'Editing';
-                    tag.classList.remove('tag-ok');
-                    tag.classList.add('tag-warn');
-                };
+            const edit = () => {
+                editing = true;
+
+                locks.forEach(([name]) => {
+                    const el = form.elements[name];
+                    el.readOnly = false;
+                    el.classList.remove('locked');
+                });
+                q.classList.remove('locked');
+                q.tabIndex = 0;
+
+                setTag('Editing', false);
+                unlock.textContent = 'Cancel';
+            };
+
+            unlock.onclick = () => (editing ? lock() : edit());
+             toStage3.onclick = () => openStage3(d, b);
+            lock();
 
                 form.action = d.action;
                 set('cName', d.name);
@@ -292,10 +237,6 @@ ms_modal?.addEventListener('click', (e) => {
             if (!contractDate.value || q.dataset.touched || q.classList.contains('locked')) return;
             q.value = ['1ST', '2ND', '3RD', '4TH'][Math.floor(new Date(contractDate.value).getMonth() / 3)];
         };
-
-        // form.querySelectorAll('[name="period_type"]').forEach(r => {
-        //     r.onchange = period;
-        // });
     }
 
     // Document file count
@@ -308,7 +249,62 @@ ms_modal?.addEventListener('click', (e) => {
         };
     }
 
-   
+    // stage 3 
+    const s3 = document.getElementById('ntpForm');
+
+if (s3) {
+    const ntp = s3.elements.ntp_date;
+    const days = s3.elements.delivery_period;
+    const out = document.getElementById('expectedDate');
+    let cont = null;
+
+    const expected = () => {
+        if (!ntp.value || !days.value) return out.textContent = '—';
+        const dt = new Date(ntp.value);
+        dt.setDate(dt.getDate() + Number(days.value));
+        out.textContent = dt.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+    };
+
+    [ntp, days].forEach(el => el.addEventListener('input', expected));
+
+    window.openStage3 = (d, btn) => {
+        cont = btn || null;
+        s3.action = `/projects/${d.id}/schedule`;
+
+        set('nName', d.name);
+        set('nCode', d.code);
+        set('nSource', d.source);
+        set('nAbc', d.abc);
+        set('nContract', d.contractNumber);
+        set('nContractDate', d.contractDate);
+        set('nQuarter', d.quarter);
+        set('nWinningBidder', d.winningBidder);
+        set('nPrice', d.price ? Number(d.price).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '');
+
+        s3.reset();
+        s3.elements.status_id.value = d.statusId || d.status || '';
+        set('fileCount3', '0 files');
+
+        ntp.min = d.contractDate || '';
+        ntp.value = d.ntp || '';
+        days.value = d.deliveryPeriod || '';
+        expected();
+
+        closeAll();
+        open(document.getElementById('ntpDrawer'));
+    };
+
+    document.getElementById('nEditBtn').onclick = () => { closeAll(); cont?.click(); };
+
+    document.querySelectorAll('[data-schedule]').forEach(b => {
+        b.onclick = () => openStage3(b.dataset, b.closest('tr')?.querySelector('[data-continue]'));
+    });
+
+    document.getElementById('documents3').onchange = e => {
+        const n = e.target.files.length;
+        set('fileCount3', `${n} file${n === 1 ? '' : 's'}`);
+    };
+}
 
     // view
     const show = (id, v) => {
@@ -339,15 +335,56 @@ ms_modal?.addEventListener('click', (e) => {
             show('vPrice', price == null ? '' : peso(price));
             show('vContractNumber', d.contractNumber || 'Not recorded');
             show('vContractDate', d.contractDate);
+            show('vWinningBidder', d.winningBidder || 'Not yet recorded');
 
             const [pq, py] = (d.period || '').split(' · ');
             const ord = { '1ST': '1st quarter', '2ND': '2nd quarter', '3RD': '3rd quarter', '4TH': '4th quarter', EPA: 'EPA' };
             show('vPeriodQ', ord[pq] || pq);
             show('vPeriodY', py || '');
 
-            show('vDelivered', d.delivered || 'Not recorded');
+            show('vDelivered', d.delivered || 'Not yet delivered');
+            show('vNtp', d.ntp);
 
-            const done = !!(d.contractNumber && d.contractDate && d.period);
+            const box = document.getElementById('vDelivery');
+            const start = d.ntp ? new Date(d.ntp) : null;
+            const days = parseInt(d.deliveryPeriod) || 0;
+            box.hidden = !(start && days);
+
+            if (!box.hidden) {
+                const DAY = 864e5;
+                const fmt = x => x.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
+                const end = new Date(start);
+                end.setDate(end.getDate() + days);
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const delivered = d.delivered ? new Date(d.delivered) : null;
+                const left = Math.round((end - today) / DAY);
+
+                let text, state;
+                if (delivered) {
+                    const late = Math.round((delivered - end) / DAY);
+                    state = late > 0 ? 'late' : 'ok';
+                    text = late > 0 ? `Delivered ${late} day${late > 1 ? 's' : ''} late` : 'Delivered on time';
+                } else if (left < 0) {
+                    state = 'late';
+                    text = `${-left} day${left < -1 ? 's' : ''} overdue`;
+                } else {
+                    state = left <= 7 ? 'warn' : 'ok';
+                    text = `${left} day${left === 1 ? '' : 's'} remaining`;
+                }
+
+                const pct = Math.min(Math.max(((delivered || today) - start) / (end - start) * 100, 0), 100);
+
+                set('vDays', `${days} calendar days`);
+                set('vRemainText', text);
+                set('vDeadlineText', `Deadline · ${fmt(end)}`);
+                set('vDeadline', fmt(end));
+                document.getElementById('vTrackFill').style.width = pct + '%';
+                document.getElementById('vRemaining').dataset.state = state;
+            }
+
+            const done = !!(d.contractNumber && d.contractDate && d.period && d.winningBidder);
             const tag = document.getElementById('vRecTag');
             tag.classList.toggle('pending', !done);
             tag.lastChild.textContent = done ? ' Recorded' : 'Pending';
@@ -355,7 +392,6 @@ ms_modal?.addEventListener('click', (e) => {
             // show('vUpdate', d.update);
             show('vUpdate', d.update || 'No update recorded yet');
             show('vNoteDate', d.statusDate || '');
-
 
             document.getElementById('vNote').classList.toggle('is-empty', !d.update);
 
@@ -379,23 +415,52 @@ ms_modal?.addEventListener('click', (e) => {
             ul.innerHTML = '';
             document.getElementById('vDocCount').textContent = docs.length;
 
-            // if (!docs.length) {
-            //     const li = document.createElement('li');
-            //     li.className = 'v-none';
-            //     li.innerHTML = '<i class="bi bi-folder-x"></i> No documents uploaded';
-            //     ul.append(li);
-            // }
             document.getElementById('vNone').hidden = docs.length > 0;
             ul.hidden = !docs.length;
 
+            // docs.forEach(f => {
+            //     const li = document.createElement('li');
+            //     const a = document.createElement('a');
+            //     a.href = f.url; a.target = '_blank'; a.rel = 'noopener';
+            //     a.innerHTML = '<i class="bi bi-file-earmark-text"></i><span><b></b><small></small></span>';
+            //     a.querySelector('b').textContent = f.name;
+            //     a.querySelector('small').textContent = kb(f.size);
+            //     li.append(a);
+            //     ul.append(li);
+            // });
+
+
             docs.forEach(f => {
                 const li = document.createElement('li');
+
                 const a = document.createElement('a');
-                a.href = f.url; a.target = '_blank'; a.rel = 'noopener';
+                a.href = f.url;
+                a.target = '_blank';
+                a.rel = 'noopener';
                 a.innerHTML = '<i class="bi bi-file-earmark-text"></i><span><b></b><small></small></span>';
                 a.querySelector('b').textContent = f.name;
                 a.querySelector('small').textContent = kb(f.size);
+
                 li.append(a);
+
+                const actions = document.createElement('div');
+                actions.className = 'doc-actions';
+                actions.style.display = 'inline';
+
+                actions.innerHTML = `
+                    <button type="button" class="doc-delete" title="Delete document">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                    <div class="doc-confirm">
+                        <span>Delete this file?</span>
+                        <button type="button" class="doc-cancel">Cancel</button>
+                        <button type="button" class="doc-confirm-btn">Delete</button>
+                    </div>`;
+
+                actions.querySelector('.doc-delete').onclick = () => li.classList.add('confirming');
+                actions.querySelector('.doc-cancel').onclick = () => li.classList.remove('confirming');
+                
+                li.append(actions);
                 ul.append(li);
             });
 
@@ -408,169 +473,4 @@ ms_modal?.addEventListener('click', (e) => {
             open(document.getElementById('viewDrawer'));
         };
     });
-
-    // document.querySelectorAll('[data-view]').forEach(b => {
-    //     b.onclick = () => {
-    //         const d = b.dataset;
-
-    //         show('vName', d.name);
-    //         show('vCode', d.code);
-    //         show('vCreated', d.created);
-    //         show('vStatus', d.status);
-    //         show('vContractNumber', d.contractNumber);
-    //         show('vContractDate', d.contractDate);
-    //         show('vAbc', d.abc);
-    //         show('vContractPrice', d.contractPrice);
-    //         show('vPeriod', d.period);
-    //         show('vDelivered', d.delivered);
-    //         show('vUpdate', d.update);
-    //         show('vStatusDate', d.statusDate);
-    //         show('vRemarks', d.remarks);
-
-    //         open(document.getElementById('viewDrawer'));
-    //     };
-    // });
 })();
-
-
-// review (are u sure naba? )
-(() => {
-  const dlg  = document.getElementById('reviewModal');
-  const list = document.getElementById('rvList');
-  const warn = document.getElementById('rvWarn');
-  const $ = id => document.getElementById(id);
-  const num = v => parseFloat(String(v).replace(/[^\d.]/g, '')) || 0;
-  const peso = n => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-  let pending = null;
-
-  const openReview = (form, rows, warning = '') => {
-    list.innerHTML = '';
-    rows.forEach(([label, value, wide]) => {
-      const d = document.createElement('div');
-      if (wide) d.className = 'wide';
-      const dt = document.createElement('dt'); dt.textContent = label;
-      const dd = document.createElement('dd'); dd.textContent = value || '—';
-      d.append(dt, dd);
-      list.append(d);
-    });
-
-    warn.hidden = !warning;
-    warn.querySelector('span').textContent = warning;
-    pending = form;
-    dlg.showModal();
-  };
-
-  // Stage 1
-  const create = $('createForm');
-  create?.addEventListener('submit', e => {
-    e.preventDefault();
-    if (!create.reportValidity()) return;
-
-    openReview(create, [
-      ['Project name', create.project_name.value, true],
-    ['Approved budget (ABC)', peso(num(create.approved_budget.value))],
-    ['Project type', create.project_type.value],
-    ['Source of funds', create.source_funds.value],
-    ['Expense class', create.expenses_classes.value],
-    ]);
-  });
-
-  // Stage 2
-  const cont = $('continueForm');
-  cont?.addEventListener('submit', e => {
-    e.preventDefault();
-    if (!cont.reportValidity()) return;
-
-    const price = num($('contract_price').value);
-    const abc   = num($('cAbc').textContent);
-    const files = [...$('documents').files].map(f => f.name);
-    const status = $('status_id');
-
-    openReview(cont, [
-      ['Project', $('cName').textContent, true],
-      ['Contract number', $('cContract').value],
-      ['Contract price', peso(price)],
-      ['Contract date', $('contract_date').value],
-    //   ['Period', $('periodOut').textContent],
-      ['Status', status.options[status.selectedIndex].text],
-      ['Status date', $('update_date').value],
-      ['Current status', $('update').value, true],
-      ['Documents', files.length ? files.join(', ') : 'No files attached', true],
-    ], abc && price > abc ? `Contract price exceeds the ABC (${peso(abc)}).` : '');
-  });
-
-  dlg?.addEventListener('click', e => {
-    if (e.target === dlg || e.target.closest('[data-review-back]')) dlg.close();
-    if (e.target.closest('[data-review-confirm]')) {
-      dlg.close();
-      pending?.submit();
-    }
-  });
-})();
-
-
-// (() => {
-//   const form = document.getElementById('continueForm');
-//   const dlg  = document.getElementById('reviewModal');
-//   const list = document.getElementById('rvList');
-//   const warn = document.getElementById('rvWarn');
-//   const $ = id => document.getElementById(id);
-//   const num = v => parseFloat(String(v).replace(/[^\d.]/g, '')) || 0;
-//   const peso = n => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
-
-//   const row = (label, value, wide) => {
-//     const d = document.createElement('div');
-//     if (wide) d.className = 'wide';
-//     const dt = document.createElement('dt'); dt.textContent = label;
-//     const dd = document.createElement('dd'); dd.textContent = value || '—';
-//     d.append(dt, dd);
-//     list.append(d);
-//   };
-
-//   form.addEventListener('submit', e => {
-//     e.preventDefault();
-//     if (!form.reportValidity()) return;
-
-//     const price = num($('contract_price').value);
-//     const abc   = num($('cAbc').textContent);
-//     const files = [...$('documents').files].map(f => f.name);
-//     const status = $('status_id');
-
-//     list.innerHTML = '';
-//     row('Project', $('cName').textContent, true);
-//     row('Contract number', $('cContract').value);
-//     row('Contract price', peso(price));
-//     row('Contract date', $('contract_date').value);
-//     row('Period', $('periodOut').textContent);
-//     row('Status', status.options[status.selectedIndex].text);
-//     row('Status date', $('update_date').value);
-//     row('Current status', $('update').value, true);
-//     row('Documents', files.length ? files.join(', ') : 'No files attached', true);
-
-//     // warn.hidden = !(abc && price > abc);
-//     // warn.querySelector('span').textContent = `Contract price exceeds the ABC (${peso(abc)}).`;
-
-//     // dlg.showModal();
-//   });
-
-//   dlg.addEventListener('click', e => {
-//     if (e.target === dlg || e.target.closest('[data-review-back]')) dlg.close();
-//     if (e.target.closest('[data-review-confirm]')) form.submit();
-//   });
-// })();
-
-// project search
-
-// const search = document.getElementById('projectSearch');
-// const buttons = document.querySelectorAll('.filter-buttons button');
-// let filter = 'all';
-
-// document.getElementById('projectSearch')?.addEventListener('input', (e) => {
-//     const q = e.target.value.toLowerCase();
-//     document.querySelectorAll('#projectTable tbody tr:not(.empty)').forEach((row) => {
-//         row.hidden = !row.textContent.toLowerCase().includes(q);
-//     });
-// });
-
-
-

@@ -116,3 +116,34 @@
         transform: translateX(24px);
     }
 }
+
+ul li { position: relative; }
+
+.doc-confirm {
+    display: none;
+    position: absolute;
+    inset: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0 12px;
+    background: #fff5f5;
+    font-size: 13px;
+}
+
+li.confirming .doc-confirm { display: flex; }
+
+.doc-cancel,
+.doc-confirm-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.doc-cancel { background: transparent; color: #6c757d; }
+.doc-cancel:hover { background: #e9ecef; }
+
+.doc-confirm-btn { background: #dc3545; color: #fff; }
+.doc-confirm-btn:hover { background: #a71d2a; }

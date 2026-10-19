@@ -31,6 +31,7 @@ class Project extends Model
         'source_funds',
         'winning_bidder',
         'delivery_period',
+        'ntp_date',
     ];
 
     public const QUARTERS = ['EPA', '1ST', '2ND', '3RD', '4TH'];
@@ -39,7 +40,7 @@ class Project extends Model
     public const PROJECT_TYPES = ['Current','Modified',];
     public const SOURCE_FUNDS = ['MMOE - Current Fund','MMOE - Continuing Fund', 'Capital Outlay - Current Fund', 'Capital Outlay - Continuing Fund'];
 
-    public const EXPENSES_CLASSES = ['MOOE','CO',];
+    // public const EXPENSES_CLASSES = ['MOOE','CO',];
 
     // variable init
     public function documents(): HasMany
@@ -75,6 +76,7 @@ class Project extends Model
             'actual_date_of_delivery' => 'date',
             'status_date'    => 'date',
             'delivery_period' => 'integer',
+            'ntp_date' => 'date',
         ];
     }
 

@@ -8,7 +8,8 @@ use App\Models\Division;
 use App\Models\Status;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use App\Models\Documents;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class ProjectController extends Controller
@@ -39,7 +40,7 @@ class ProjectController extends Controller
 
         $counts = [
             'all'      => (clone $base)->count(),
-            'awaiting' => (clone $base)->whereNull('contract_number')->count(),
+            'pending' => (clone $base)->whereNull('contract_number')->count(),
             'recorded' => (clone $base)->whereNotNull('contract_number')->count(),
         ];
 
@@ -74,7 +75,7 @@ class ProjectController extends Controller
 
         $counts = [
             'all'      => (clone $projects)->count(),
-            'awaiting' => (clone $projects)->whereNull('contract_number')->count(),
+            'pending' => (clone $projects)->whereNull('contract_number')->count(),
             'recorded' => (clone $projects)->whereNotNull('contract_number')->count(),
         ];
 
@@ -136,10 +137,10 @@ class ProjectController extends Controller
         $data = $request->validate([
             'project_name'    => 'required|string|max:255',
             'approved_budget' => 'required|numeric|min:0',
-            'project_type'     => ['required', Rule::in(Project::PROJECT_TYPES)],
+            // 'project_type'     => ['required', Rule::in(Project::PROJECT_TYPES)],
             'source_funds'     => ['required', Rule::in(Project::SOURCE_FUNDS)],
-            'winning_bidder' => ['nullable', 'string', 'max:255'],
-            'delivery_period' => ['nullable', 'integer', 'min:1', 'max:120'],
+            // 'winning_bidder' => ['nullable', 'string', 'max:255'],
+            // 'delivery_period' => ['nullable', 'integer', 'min:1', 'max:120'],
         ]);
 
         Project::create($data + [
@@ -178,7 +179,9 @@ class ProjectController extends Controller
      */
     public function update(Request $request, Project $project)
     {
-        // logger($request->all());
+        // logger($request->all());\
+
+        abort_if(Auth::user()->role === 'admin' || $project->division_id !== Auth::user()->division_id, 403);
 
         $request->merge([
             'contract_price' => str_replace(',', '', $request->contract_price),
@@ -210,11 +213,13 @@ class ProjectController extends Controller
         ]);
 
         foreach ($request->file('documents', []) as $file) {
-            $project->documents()->create([
-                'name' => $file->getClientOriginalName(),
-                'path' => $file->store("projects/{$project->id}", 'public'),
-            ]);
-        }
+                $project->documents()->create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $file->store("projects/{$project->id}", 'public'),
+                    'user_id' => Auth::id(),
+                    'division_id' => $project->division_id,
+                ]);
+            }
 
         $project->updates()->create([
             'division_id' => $project->division_id,
@@ -225,6 +230,61 @@ class ProjectController extends Controller
         ]);
 
         return redirect()->route('projects.index')->with('success', 'Successfully updated project ('.  $project->project_name . ').');
+    }
+
+    // stage 3
+    public function updateSchedule(Request $request, Project $project)
+    {
+
+        abort_if(Auth::user()->role === 'admin' || $project->division_id !== Auth::user()->division_id, 403);
+        abort_if(! $project->contract_date, 422, 'Record the contract first.');
+
+        $data = $request->validate([
+            'ntp_date'        => ['required', 'date', 'after_or_equal:' . Carbon::parse($project->contract_date)->toDateString()],
+            'delivery_period' => ['required', 'integer', 'between:1,120'],
+            'status_id'       => 'required|exists:statuses,id',
+            'update'          => 'required|string|max:255',
+            'status_date'     => 'required|date',
+            'documents.*'     => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+        ]);
+
+        foreach ($request->file('documents', []) as $file) {
+                $project->documents()->create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $file->store("projects/{$project->id}", 'public'),
+                    'user_id' => Auth::id(),
+                    'division_id' => $project->division_id,
+                ]);
+            }
+
+        $project->updates()->create([
+            'division_id' => $project->division_id,
+            'status_id'   => $data['status_id'],
+            'created_by'  => Auth::id(),
+            'update'      => $data['update'],
+            'status_date' => $data['status_date'],
+        ]);
+
+        return redirect()->route('projects.index')->with('success', 'Schedule saved (' . $project->project_name . ').');
+    }
+
+    // delete upload
+    public function destroyDocument(Documents $document)
+    {
+        $user = Auth::user();
+        
+        if (!$user->division_id ||
+            $document->division_id != $user->division_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        if ($document->file_path) {
+            Storage::disk('public')->delete($document->file_path);
+        }
+
+        $document->delete();
+
+       return request()->expectsJson() ? response()->json(['ok' => true]) : back()->with('success', 'Document deleted successfully.');
     }
 
     /**

@@ -1,4 +1,5 @@
 @extends('layouts.default_division')
+@use('Illuminate\Support\Facades\Storage')
 
 @if (auth()->user()->role === 'admin')
     @section('sidebar-class', 'sidebar-admin')

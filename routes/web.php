@@ -49,10 +49,13 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
     // Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
     // Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
     // Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+    
     Route::middleware(['auth'])->get('/admin/projects', [ProjectController::class, 'adminIndex'])->name('admin.projects');
     Route::get('projects/check-contract', [ProjectController::class, 'checkContract'])->name('projects.check-contract');
     Route::resource('projects', ProjectController::class);
     Route::put('projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::put('projects/{project}/schedule', [ProjectController::class, 'updateSchedule'])->name('projects.schedule');
+    Route::delete('/documents/{document}', [ProjectController::class, 'destroyDocument'])->name('documents.destroy');
 
     // Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])
     // ->middleware('role:admin')

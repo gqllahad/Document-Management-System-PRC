@@ -2,6 +2,8 @@
 @import "./review.css";
 @import "./view.css";
 @import "./table.css";
+@import "./document.css";
+
 * {
     box-sizing: border-box;
     margin: 0;
