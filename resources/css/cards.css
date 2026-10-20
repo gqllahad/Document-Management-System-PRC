@@ -1,0 +1,59 @@
+.cards-container{
+    display: flex;
+    flex-direction: row;
+    /* display: grid;
+    grid-template-columns: repeat(2, 1fr); */
+    align-items: center;
+    gap: 2rem;
+    padding: 30px 0;
+}
+
+.stat-card {
+    width: 370px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+  }
+ 
+  .stat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+ 
+  .stat-title {
+    font-size: 14px;
+    color: #6b7280;
+  }
+ 
+  .stat-icon {
+    width: 22px;
+    height: 22px;
+    color: #2563eb;
+  }
+ 
+  .stat-value {
+    margin: 18px 0 16px;
+    font-size: 40px;
+    font-weight: 700;
+    color: #1e2a4a;
+    line-height: 1;
+  }
+ 
+  .stat-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #6b7280;
+  }
+ 
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1f8a5b;
+  }
+ 
+  .sep { color: #d1d5db; }

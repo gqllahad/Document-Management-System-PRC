@@ -11,16 +11,19 @@ use Illuminate\Support\Facades\Auth;
 class DivisionController extends Controller
 {
 
-    public function admin()
-    {
-        $user = Auth::user();
+    // public function admin()
+    // {
+    //     $user = Auth::user();
 
-        return view('admin.dashboard');
-    }
+    //     $divisions = Division::orderByRaw("CASE WHEN name = 'ICTS-OD' THEN 0 ELSE 1 END")->orderBy('name')->get();
+
+    //     return view('admin.dashboard', compact('divisions'));
+    // }
 
     public function show($name)
     {
         $division = Division::whereRaw('LOWER(name) = ?', [$name])->firstOrFail();
+         $divisions = Division::orderByRaw("CASE WHEN name = 'ICT-OD' THEN 0 ELSE 1 END")->orderBy('name')->get();
 
         $user = Auth::user();
 
@@ -34,7 +37,7 @@ class DivisionController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view("division.{$name}.index", compact('division', 'projects'));
+        return view("division.{$name}.index", compact('division', 'projects', 'divisions'));
     }
 
     /**

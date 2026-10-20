@@ -15,6 +15,7 @@
 </div>
 
 @php $isAdmin = auth()->user()->role === 'admin'; @endphp
+
 <div class="card table-card">
     <div class="table-head">
         <div>

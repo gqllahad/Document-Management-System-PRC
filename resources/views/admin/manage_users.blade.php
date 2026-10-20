@@ -12,9 +12,7 @@
     </div>
 
     <div>
-        <button>
-            Add user
-        </button>
+        
     </div>
     <div class="search">
         <i class="bi bi-search"></i>

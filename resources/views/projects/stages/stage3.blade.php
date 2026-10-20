@@ -80,7 +80,7 @@
             </div>
 
             <div class="field">
-                <label for="update3">Current status <b>*</b></label>
+                <label for="update3">Current status<b>*</b> </label>
                 <textarea id="update3" name="update" rows="3" placeholder="e.g. Notice to proceed issued, delivery scheduled" required></textarea>
                 <input type="date" id="update_date3" name="status_date" required>
             </div>

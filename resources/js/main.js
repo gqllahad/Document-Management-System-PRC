@@ -413,10 +413,14 @@ if (s3) {
             const docs = JSON.parse(d.docs || '[]');
             const ul = document.getElementById('vDocs');
             ul.innerHTML = '';
-            document.getElementById('vDocCount').textContent = docs.length;
 
-            document.getElementById('vNone').hidden = docs.length > 0;
-            ul.hidden = !docs.length;
+            // proto
+            const syncDocs = () => {
+                const n = ul.children.length;
+                document.getElementById('vDocCount').textContent = n;
+                document.getElementById('vNone').hidden = n > 0;
+                ul.hidden = !n;
+            };
 
             // docs.forEach(f => {
             //     const li = document.createElement('li');
@@ -459,9 +463,30 @@ if (s3) {
 
                 actions.querySelector('.doc-delete').onclick = () => li.classList.add('confirming');
                 actions.querySelector('.doc-cancel').onclick = () => li.classList.remove('confirming');
+
+                actions.querySelector('.doc-confirm-btn').onclick = async () => {
+                    const res = await fetch(`/documents/${f.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (res.ok){
+                        li.remove();
+                        syncDocs();
+                        toast('Successfully deleted!', 'success');
+                    }
+                    else{
+                        toast('Failed to delete document!', 'warning');
+                    } 
+                };
                 
                 li.append(actions);
                 ul.append(li);
+                syncDocs();
+                
             });
 
             const cont = b.closest('tr')?.querySelector('[data-continue]');

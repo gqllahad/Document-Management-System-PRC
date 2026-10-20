@@ -71,7 +71,7 @@ class ProjectController extends Controller
 
         $statuses = Status::orderBy('sort_order')->get();
 
-        $divisions = Division::orderBy('name')->get();
+        $divisions = Division::orderByRaw("CASE WHEN name = 'ICTS-OD' THEN 0 ELSE 1 END")->orderBy('name')->get();
 
         $counts = [
             'all'      => (clone $projects)->count(),

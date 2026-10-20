@@ -206,7 +206,7 @@
 .filter-select:focus {
     outline: none;
     border-color: #111827;
-    box-shadow: 0 0 0 2px #fff, 0 0 0 3px #111827;
+    /* box-shadow: 0 0 0 2px #fff, 0 0 0 3px #111827; */
 }
 
 

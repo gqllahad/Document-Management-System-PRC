@@ -49,11 +49,14 @@
     const files = [...$('documents').files].map(f => f.name);
     const status = $('status_id');
 
+
+    // TODO:WInning bidder
     openReview(cont, [
       ['Project', $('cName').textContent, true],
       ['Contract number', $('cContract').value],
       ['Contract price', peso(price)],
       ['Contract date', $('contract_date').value],
+      ['winning_bidder', $('winning_bidder').value],
     //   ['Period', $('periodOut').textContent],
       ['Status', status.options[status.selectedIndex].text],
       ['Status date', $('update_date').value],

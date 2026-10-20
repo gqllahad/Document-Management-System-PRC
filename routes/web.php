@@ -28,7 +28,7 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
 
     // admin
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin/dashboard', [DivisionController::class, 'admin'])->name('admin.dashboard');
+        Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/admin/manage_users', [AdminController::class, 'manage_users'])->name('admin.manage_users');
         Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
     });
