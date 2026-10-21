@@ -14,10 +14,11 @@ class DivisionSeeder extends Seeder
     public function run(): void
     {
         $divisions = [
-            'NIISD',
-            'DMSD',
-            'SDMD',
             'ICTS-OD',
+            'DMSD',
+            'NIISD',
+            'SDMD',
+            
         ];
 
         foreach ($divisions as $division) {

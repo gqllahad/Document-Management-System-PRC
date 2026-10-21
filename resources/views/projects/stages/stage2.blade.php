@@ -12,7 +12,7 @@
 
         <div class="drawer-body">
             <span class="drawer-badge">{{ Str::upper(auth()->user()->division->name ?? '') }} workspace</span>
-            @include('partials.stepper', ['current' => 2])
+            @include('projects.partials.stepper', ['current' => 2])
 
             <div class="sec-title">Recorded project <small><i class="bi bi-lock"></i> Read-only</small></div>
             <div class="recorded">
@@ -32,13 +32,13 @@
             </div>
 
             <div class="field">
-                <label for="cContract">Contract number</label>
+                <label for="cContract">Contract number <b class="required">*</b></label>
                 <input type="text" id="cContract" name="contract_number" placeholder="Enter contract number..">
                 <small class="err" id="contractErr" hidden></small>
             </div>
 
             <div class="field">
-                <label for="contract_price">Contract price <b>*</b></label>
+                <label for="contract_price">Contract price <b class="required">*</b></label>
                 <div class="input-prefix">
                     <span>₱</span>
                     <input type="text" id="contract_price" name="contract_price" placeholder="0.00" inputmode="decimal" required>
@@ -47,17 +47,17 @@
             </div>
 
             <div class="field">
-                <label for="winning_bidder">Winning bidder <b>*</b></label>
+                <label for="winning_bidder">Winning bidder <b class="required">*</b></label>
                 <input type="text" id="winning_bidder" name="winning_bidder" placeholder="Enter winning bidder.." required>
             </div>
 
             <div class="row-2">
                 <div class="field">
-                    <label for="contract_date">Contract date <b>*</b></label>
+                    <label for="contract_date">Contract date <b class="required">*</b></label>
                     <input type="date" id="contract_date" name="contract_date" required>
                 </div>
                <div class="field">
-                    <label for="quarter">Quarter</label>
+                    <label for="quarter">Quarter <b class="required">*</b></label>
                     <select id="quarter" name="quarter" required>
                         <option value="" disabled selected>Select period</option>
                         <option value="EPA">EPA</option>
@@ -75,7 +75,7 @@
             <p class="muted">Keep the project status current for your team.</p>
 
             <div class="field">
-                <label for="status_id">Update status</label>
+                <label for="status_id">Update status <b class="required">*</b></label>
                 <select id="status_id" name="status_id" required>
                     @foreach ($statuses as $s)
                         <option value="{{ $s->id }}">{{ $s->name }}</option>
@@ -96,7 +96,7 @@
             </div> -->
             
             <div class="field">
-                <label for="update">Current status <b>*</b></label>
+                <label for="update">Current status <b class="required">*</b></label>
                 <textarea id="update" name="update" rows="3" placeholder="e.g. Notice to proceed issued, delivery scheduled" required></textarea>
                 <input type="date" id="update_date" name="status_date" required>
             </div>

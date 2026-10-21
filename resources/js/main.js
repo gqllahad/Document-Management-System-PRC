@@ -1,8 +1,21 @@
+// partials
 import './toast.js';
-import './projectFilter.js';
+import './partials/projectFilter.js';
+
 import './stringToNumber.js';
-import './review.js';
-import './manageUser.js';
+
+// project
+import './partials/review.js';
+
+// user management
+import './partials/manageUser.js';
+
+// panels for dashboard
+import './panels/stagePanel.js';
+import './panels/deliveryPanel.js';
+import './panels/budgetPanel.js';
+import './panels/cards.js';
+import './panels/attentionPanel.js';
 
 const toggle = document.getElementById('sidebarToggle');
 const app = document.querySelector('.app');
@@ -113,10 +126,10 @@ toggle?.addEventListener('click', () => {
                     ['winning_bidder', d.winningBidder],
                 ];
 
-                const setTag = done => {
-                    tag.textContent = done ? 'Recorded' : 'To be completed';
-                    tag.classList.toggle('tag-ok', done);
-                    tag.classList.toggle('tag-warn', !done);
+                const setTag = (text, ok) => {
+                    tag.textContent = text;
+                    tag.classList.toggle('tag-ok', ok);
+                    tag.classList.toggle('tag-warn', !ok);
                 };
 
                 let editing = false;
@@ -252,59 +265,100 @@ toggle?.addEventListener('click', () => {
     // stage 3 
     const s3 = document.getElementById('ntpForm');
 
-if (s3) {
-    const ntp = s3.elements.ntp_date;
-    const days = s3.elements.delivery_period;
-    const out = document.getElementById('expectedDate');
-    let cont = null;
+    if (s3) {
+        const ntp = s3.elements.ntp_date;
+        const days = s3.elements.delivery_period;
+        const out = document.getElementById('expectedDate');
+        let cont = null;
 
-    const expected = () => {
-        if (!ntp.value || !days.value) return out.textContent = '—';
-        const dt = new Date(ntp.value);
-        dt.setDate(dt.getDate() + Number(days.value));
-        out.textContent = dt.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
-    };
+        const expected = () => {
+            if (!ntp.value || !days.value) return out.textContent = '—';
+            const dt = new Date(ntp.value);
+            dt.setDate(dt.getDate() + Number(days.value));
+            out.textContent = dt.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+        };
 
-    [ntp, days].forEach(el => el.addEventListener('input', expected));
+        [ntp, days].forEach(el => el.addEventListener('input', expected));
 
-    window.openStage3 = (d, btn) => {
-        cont = btn || null;
-        s3.action = `/projects/${d.id}/schedule`;
 
-        set('nName', d.name);
-        set('nCode', d.code);
-        set('nSource', d.source);
-        set('nAbc', d.abc);
-        set('nContract', d.contractNumber);
-        set('nContractDate', d.contractDate);
-        set('nQuarter', d.quarter);
-        set('nWinningBidder', d.winningBidder);
-        set('nPrice', d.price ? Number(d.price).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '');
+        // lock
+        const unlock = document.getElementById('ntpUnlockBtn');
+        const tag = document.getElementById('ntpTag');
+        let saved = { ntp: '', days: '' };
+        let editing = false;
 
-        s3.reset();
-        s3.elements.status_id.value = d.statusId || d.status || '';
-        set('fileCount3', '0 files');
+        const setTag = (text, ok) => {
+            tag.textContent = text;
+            tag.classList.toggle('tag-ok', ok);
+            tag.classList.toggle('tag-warn', !ok);
+        };
 
-        ntp.min = d.contractDate || '';
-        ntp.value = d.ntp || '';
-        days.value = d.deliveryPeriod || '';
-        expected();
+        const lock = () => {
+            editing = false;
+            ntp.value = saved.ntp;
+            days.value = saved.days;
+            expected();
 
-        closeAll();
-        open(document.getElementById('ntpDrawer'));
-    };
+            const done = !!(saved.ntp && saved.days);
+            [ntp, days].forEach(el => {
+                el.readOnly = done;
+                el.classList.toggle('locked', done);
+            });
 
-    document.getElementById('nEditBtn').onclick = () => { closeAll(); cont?.click(); };
+            setTag(done ? 'Recorded' : 'To be completed', done);
+            unlock.textContent = 'Edit';
+            unlock.hidden = !done;
+        };
 
-    document.querySelectorAll('[data-schedule]').forEach(b => {
-        b.onclick = () => openStage3(b.dataset, b.closest('tr')?.querySelector('[data-continue]'));
-    });
+        const edit = () => {
+            editing = true;
+            [ntp, days].forEach(el => {
+                el.readOnly = false;
+                el.classList.remove('locked');
+            });
+            setTag('Editing', false);
+            unlock.textContent = 'Cancel';
+        };
 
-    document.getElementById('documents3').onchange = e => {
-        const n = e.target.files.length;
-        set('fileCount3', `${n} file${n === 1 ? '' : 's'}`);
-    };
-}
+        unlock.onclick = () => (editing ? lock() : edit());
+
+        window.openStage3 = (d, btn) => {
+            cont = btn || null;
+            s3.action = `/projects/${d.id}/schedule`;
+
+            set('nName', d.name);
+            set('nCode', d.code);
+            set('nSource', d.source);
+            set('nAbc', d.abc);
+            set('nContract', d.contractNumber);
+            set('nContractDate', d.contractDate);
+            set('nQuarter', d.quarter);
+            set('nWinningBidder', d.winningBidder);
+            set('nPrice', d.price ? Number(d.price).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '');
+
+            s3.reset();
+            s3.elements.status_id.value = d.statusId || d.status || '';
+            set('fileCount3', '0 files');
+
+            ntp.min = d.contractDate || '';
+            saved = { ntp: d.ntp || '', days: d.deliveryPeriod || '' };
+            lock();
+
+            closeAll();
+            open(document.getElementById('ntpDrawer'));
+        };
+
+        document.getElementById('nEditBtn').onclick = () => { closeAll(); cont?.click(); };
+
+        document.querySelectorAll('[data-schedule]').forEach(b => {
+            b.onclick = () => openStage3(b.dataset, b.closest('tr')?.querySelector('[data-continue]'));
+        });
+
+        document.getElementById('documents3').onchange = e => {
+            const n = e.target.files.length;
+            set('fileCount3', `${n} file${n === 1 ? '' : 's'}`);
+        };
+    }
 
     // view
     const show = (id, v) => {

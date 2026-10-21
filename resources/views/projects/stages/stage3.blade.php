@@ -1,5 +1,5 @@
 <aside class="drawer" id="ntpDrawer" aria-hidden="true">
-    <form method="POST" id="ntpForm" class="drawer-form">
+    <form method="POST" id="ntpForm" enctype="multipart/form-data" class="drawer-form">
         @csrf @method('PUT')
 
         <div class="drawer-head">
@@ -12,7 +12,7 @@
 
         <div class="drawer-body">
             <span class="drawer-badge">{{ Str::upper(auth()->user()->division->name ?? '') }} workspace</span>
-            @include('partials.stepper', ['current' => 3])
+            @include('projects.partials.stepper', ['current' => 3])
 
             <div class="sec-title">Project & contract <small><i class="bi bi-lock"></i> Read-only</small>
                 <button type="button" class="link-toggle" id="nEditBtn">Edit</button>
@@ -48,13 +48,13 @@
 
             <div class="row-2">
                 <div class="field">
-                    <label for="ntp_date">NTP date <b>*</b></label>
+                    <label for="ntp_date">NTP date <b class="required">*</b></label>
                     <input type="date" id="ntp_date" name="ntp_date" required>
                     @error('ntp_date') <small class="err">{{ $message }}</small> @enderror
                 </div>
 
                 <div class="field">
-                    <label for="delivery_period">Delivery period (days) <b>*</b></label>
+                    <label for="delivery_period">Delivery period (days) <b class="required">*</b></label>
                     <input type="number" id="delivery_period" name="delivery_period" min="1" max="120" step="1" placeholder="1–120" required>
                     @error('delivery_period') <small class="err">{{ $message }}</small> @enderror
                 </div>
@@ -71,7 +71,7 @@
             <p class="muted">Keep the project status current for your team.</p>
 
             <div class="field">
-                <label for="status_id3">Update status</label>
+                <label for="status_id3">Update status <b class="required">*</b></label>
                 <select id="status_id3" name="status_id" required>
                     @foreach ($statuses as $s)
                         <option value="{{ $s->id }}">{{ $s->name }}</option>
@@ -80,7 +80,7 @@
             </div>
 
             <div class="field">
-                <label for="update3">Current status<b>*</b> </label>
+                <label for="update3">Current status<b class="required">*</b> </label>
                 <textarea id="update3" name="update" rows="3" placeholder="e.g. Notice to proceed issued, delivery scheduled" required></textarea>
                 <input type="date" id="update_date3" name="status_date" required>
             </div>

@@ -1,4 +1,4 @@
-@php $steps = ['Project', 'Contract', 'Progress']; @endphp
+@php $steps = ['Project', 'Contract', 'Implementation']; @endphp
 <div class="stepper">
     @foreach ($steps as $i => $label)
         @php $n = $i + 1; $state = $n < $current ? 'done' : ($n === $current ? 'active' : ''); @endphp

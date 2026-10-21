@@ -64,7 +64,7 @@
                     </td>
                 </tr>
                 @empty
-                <tr class="empty">
+               <tr class="empty" @if ($users->isNotEmpty()) hidden @endif>
                     <td colspan="5">No registered users found.</td>
                 </tr>
                 @endforelse

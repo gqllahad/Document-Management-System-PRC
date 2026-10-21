@@ -39,6 +39,13 @@
                     </select>
                 @endif
 
+                <select id="quarterFilter" class="filter-select">
+                    <option value="all">All quarters</option>
+                    @foreach ($quarters as $qt)
+                        <option value="{{ $qt }}">{{ $qt }}</option>
+                    @endforeach
+                </select>
+
                 <select id="typeFilter" class="filter-select">
                     <option value="all">All source funds</option>
                     <option value="MMOE - Current Fund">MMOE - Current F.</option>
@@ -46,6 +53,7 @@
                     <option value="Capital Outlay - Current Fund">Capital Outlay - Current F.</option>
                     <option value="Capital Outlay - Continuing Fund">Capital Outlay - Continuing F.</option>
                 </select>
+
             </div>
 
             <!-- <div class="search">

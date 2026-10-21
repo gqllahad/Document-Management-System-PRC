@@ -5,6 +5,7 @@
 @import "./document.css";
 @import "./cards.css";
 @import "./dashboard.css";
+@import "./tracking.css";
 
 * {
     box-sizing: border-box;
@@ -70,6 +71,11 @@ a {
     background: var(--primary-light);
     border-right: 1px solid var(--border);
     transition: width 0.2s;
+    overflow-y: auto;
+     position: sticky;
+    top: 0;
+    height: 100vh;
+    align-self: flex-start;
 }
 .brand {
     display: flex;
@@ -347,12 +353,27 @@ a {
 .field {
     min-width: 0;
 }
+
+.required{
+     color: red;
+    margin-left: 2px;
+}
+
 .field label {
     display: block;
     margin-bottom: 0.3rem;
     font-size: 0.6rem;
     font-weight: 500;
 }
+
+.field label .required {
+    position: static !important;
+    display: inline !important;
+    margin-left: 3px !important;
+    float: none !important;
+    color: red;
+}
+
 .field label small {
     color: var(--muted);
     font-weight: 400;
@@ -437,13 +458,7 @@ a {
 a.btn-sm,
 a.btn-primary {
     text-decoration: none;
-}
-
-@media (max-width: 640px) {
-    .form-grid {
-        grid-template-columns: 1fr;
-    }
-}
+} 
 
 /* projects */
 .cell-sub {
@@ -459,10 +474,10 @@ a.btn-primary {
 .pagination-wrap {
     margin-top: 1rem;
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
-.pagination-wrap nav > div:first-child { display: none; } 
+.pagination-wrap nav > div:first-child { display: none; justify-content: center;} 
 
 .pagination {
     display: flex;

@@ -4,6 +4,8 @@ let filter = 'all';
 const divisionSel = document.getElementById('divisionFilter');
 const typeSel = document.getElementById('typeFilter');
 
+const quarterSel = document.getElementById('quarterFilter');
+
 const messages = {
     all: 'No matching projects.',
     awaiting: 'No projects pending contract.',
@@ -20,7 +22,8 @@ function applyFilters() {
         const matchFilter = filter === 'all' || row.dataset.contract === filter;
         const matchDivision = !divisionSel || divisionSel.value === 'all' || row.dataset.division === divisionSel.value;
         const matchType = typeSel.value === 'all' || row.dataset.type === typeSel.value;
-        const show = matchSearch && matchFilter && matchDivision && matchType;
+        const matchQuarter = !quarterSel || quarterSel.value === 'all' || row.dataset.quarter === quarterSel.value;
+        const show = matchSearch && matchFilter && matchDivision && matchType && matchQuarter;
 
         row.hidden = !show;
         if (show) visible++;
@@ -36,6 +39,7 @@ function applyFilters() {
 search?.addEventListener('input', applyFilters);
 divisionSel?.addEventListener('change', applyFilters);
 typeSel?.addEventListener('change', applyFilters);
+quarterSel?.addEventListener('change', applyFilters);
 
 buttons.forEach((btn) => {
     btn.addEventListener('click', () => {

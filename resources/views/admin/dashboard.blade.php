@@ -47,9 +47,9 @@
     </div>
 
     <div>
-        <label for="pt"><small>Project type</small></label>
-        <select name="pt" id="" class="filter-select">
-            <option value="add">All project types</option>
+        <label for="qt"><small>Quarter</small></label>
+        <select name="qt" id="" class="filter-select">
+            <option value="add">All</option>
         </select>
     </div>
 </div>
@@ -61,7 +61,11 @@
 
     @include('dashboard.stage-panel')
 
-    @include('dashboard.stage-panel')
+    @include('dashboard.budget-panel')
+
+    @include('dashboard.attention-panel')
+
+    @include('dashboard.delivery-panel')
 </div>
 
     

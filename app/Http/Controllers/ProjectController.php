@@ -26,10 +26,13 @@ class ProjectController extends Controller
     public function adminIndex()
     {
         $user = Auth::user();
+
+        $quarters = Project::QUARTERS;
         
         $projects = Project::with(['division', 'status', 'latestUpdate', 'documents'])
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
         
         $base = Project::query()
         ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id));
@@ -44,7 +47,7 @@ class ProjectController extends Controller
             'recorded' => (clone $base)->whereNotNull('contract_number')->count(),
         ];
 
-        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts'));
+        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts', 'quarters'));
     }
 
     // check contract validation (ajax someting)
@@ -60,14 +63,18 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
+        
+        $quarters = Project::QUARTERS;
 
         $projects = Project::with(['status', 'division', 'latestUpdate'])
         ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id))
+        ->when($request->quarter, fn ($q, $v) => $q->where('quarter', $v))
         ->latest()
-        ->paginate(10);
+        ->paginate(10)
+        ->withQueryString();
 
         $statuses = Status::orderBy('sort_order')->get();
 
@@ -79,7 +86,7 @@ class ProjectController extends Controller
             'recorded' => (clone $projects)->whereNotNull('contract_number')->count(),
         ];
 
-        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts'));
+        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts', 'quarters'));
     }
 
     /**
@@ -139,7 +146,6 @@ class ProjectController extends Controller
             'approved_budget' => 'required|numeric|min:0',
             // 'project_type'     => ['required', Rule::in(Project::PROJECT_TYPES)],
             'source_funds'     => ['required', Rule::in(Project::SOURCE_FUNDS)],
-            // 'winning_bidder' => ['nullable', 'string', 'max:255'],
             // 'delivery_period' => ['nullable', 'integer', 'min:1', 'max:120'],
         ]);
 
@@ -190,8 +196,9 @@ class ProjectController extends Controller
         $data = $request->validate([
             'contract_number' => 'required|string|max:100|unique:projects,contract_number,' . $project->id,
             'contract_price'  => 'required|numeric|min:0|max:' . $project->approved_budget,
+            'winning_bidder'  => ['nullable', 'string', 'max:255'],
             'contract_date'   => 'required|date',
-            'quarter'           => ['required', Rule::in(['EPA', '1ST', '2ND', '3RD', '4TH'])],
+            'quarter'         => ['required', Rule::in(['EPA', '1ST', '2ND', '3RD', '4TH'])],
             'status_id'       => 'required|exists:statuses,id',
             'update'          => 'required|string|max:255',
             'status_date'     => 'required|date',
@@ -205,6 +212,7 @@ class ProjectController extends Controller
 
         $project->update([
             'contract_price'  => $data['contract_price'],
+            'winning_bidder'  => $data['winning_bidder'],
             'contract_date'   => $date,
             'contract_number' => ltrim($data['contract_number'], '.'), //'CS-' . now()->format('n-Y') . '-' . 
             'quarter' => $data['quarter'],
@@ -245,7 +253,13 @@ class ProjectController extends Controller
             'status_id'       => 'required|exists:statuses,id',
             'update'          => 'required|string|max:255',
             'status_date'     => 'required|date',
-            'documents.*'     => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+            'documents'   => 'nullable|array',
+            'documents.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
+        ]);
+
+        $project->update([
+            'ntp_date'        => $data['ntp_date'],
+            'delivery_period' => $data['delivery_period'],
         ]);
 
         foreach ($request->file('documents', []) as $file) {

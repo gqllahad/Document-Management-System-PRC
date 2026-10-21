@@ -8,12 +8,16 @@
         <i class="bi bi-folder2-open"></i><span>All Projects</span>
     </a>
 
-    <p class="nav-label">Divisions</p>
+    <a href="{{ route('admin.tracking') }}" class="{{ request()->routeIs('admin.tracking') ? 'active' : '' }}">
+       <i class="bi bi-card-checklist"></i><span>Tracking Monitor</span>
+    </a>
+
+    <!-- <p class="nav-label">Divisions</p>
     <a href="{{ url('/division/niisd') }}" class="{{ request()->is('division/niisd') ? 'active' : '' }}"><i class="bi bi-diagram-3"></i><span>NIISD</span></a>
     <a href="{{ url('/division/dmsd') }}" class="{{ request()->is('division/dmsd') ? 'active' : '' }}"><i class="bi bi-database"></i><span>DMSD</span></a>
     <a href="{{ url('/division/sdmd') }}" class="{{ request()->is('division/sdmd') ? 'active' : '' }}"><i class="bi bi-hdd-network"></i><span>SDMD</span></a>
     <a href="{{ url('/division/icts-od') }}" class="{{ request()->is('division/icts-od') ? 'active' : '' }}"><i class="bi bi-building"></i><span>ICTS-OD</span></a>
-    <br><br><br>
+    <br><br><br> -->
     
     <p class="nav-label">Admin</p>
 

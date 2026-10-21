@@ -1,14 +1,20 @@
 @php
-    // $stageCounts e.g. ['pend' => 1, 'bidding' => 1, 'obligated' => 1, 'installed' => 1, 'delivered' => 1, 'cancelled' => 1]
-    $stages = [
-        ['label' => 'Pending/Ongoing', 'count' => $stageCounts['pend'] ?? 0,            'color' => '#9db8e0'],
-        ['label' => 'Successful Bid',         'count' => $stageCounts['bidding'] ?? 0,        'color' => '#b8902a'],
-        ['label' => 'Obligated',         'count' => $stageCounts['obligated'] ?? 0,        'color' => '#1f6fe0'],
-        ['label' => 'Installed/Renewed', 'count' => $stageCounts['installed'] ?? 0,       'color' => '#0f2a5c'],
-        ['label' => 'Delivered',  'count' => $stageCounts['delivered'] ?? 0, 'color' => '#6b7280'],
-        ['label' => 'Cancelled',       'count' => $stageCounts['cancelled'] ?? 0,      'color' => '#1f8a5b'],
-        ['label' => 'Submitted DV',       'count' => $stageCounts['submitted'] ?? 0,      'color' => '#130c3b'],
+    $colors = [
+        'Pending/Ongoing'   => '#9db8e0',
+        'Successful Bid'    => '#b8902a',
+        'Obligated'         => '#1f6fe0',
+        'Installed/Renewed' => '#0f2a5c',
+        'Delivered'         => '#6b7280',
+        'Cancelled'         => '#c0392b',
+        'Submitted DV'      => '#130c3b',
     ];
+
+    $stages = $statuses->map(fn ($s) => [
+        'id'    => $s->id,
+        'label' => $s->name,
+        'count' => (int) ($stageCounts[$s->id] ?? 0),
+        'color' => $colors[$s->name] ?? '#cbd5e1',
+    ])->all();
 
     $total = array_sum(array_column($stages, 'count'));
     $acc = 0;
@@ -22,7 +28,7 @@
     $gradient = $total ? implode(', ', $parts) : '#e5e7eb 0 100%';
 @endphp
 
-<div class="stages-panel">
+<div class="stages-panel" data-donut data-stages='@json($stageByDivision)'>
     <div class="stages-head">
         <div>
             <h3 class="stages-title">Procurement stages</h3>
@@ -34,21 +40,26 @@
     </div>
 
     <div class="stages-body">
-        <div class="stages-pie" @style(['background: conic-gradient(' . $gradient . ')'])></div>
+        <div class="stages-pie" @style(['background: conic-gradient(' . $gradient . ')'])>
+            <div class="stages-hole">
+                <strong class="stages-num">{{ $total }}</strong>
+                <small class="stages-lbl">All projects</small>
+            </div>
+        </div>
+
         <ul class="stages-list">
             @foreach ($stages as $s)
-                <li>
+                <li tabindex="0"
+                    data-id="{{ $s['id'] }}"
+                    data-label="{{ $s['label'] }}"
+                    data-count="{{ $s['count'] }}"
+                    data-color="{{ $s['color'] }}">
                     <span class="stages-dot" @style(['background:' . $s['color']])></span>
                     {{ $s['label'] }}
                     <span class="stages-count">{{ $s['count'] }}</span>
                 </li>
             @endforeach
         </ul>
-    </div>
-
-    <div class="stages-total">
-        <span><strong>{{ $total }}</strong>Total projects</span>
-        <span class="stages-done">✓ {{ $stageCounts['completed'] ?? 0 }} completed</span>
     </div>
 
 </div>

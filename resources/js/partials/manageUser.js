@@ -11,9 +11,15 @@ const ms_pick = (name) => ms_form.querySelector(`input[name="${name}"]:checked`)
 // manage users (searchss)
 document.getElementById('userSearch')?.addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase();
+    let visible = 0;
+
     document.querySelectorAll('#userTable tbody tr:not(.empty)').forEach((row) => {
-        row.hidden = !row.textContent.toLowerCase().includes(q);
+        const show = row.textContent.toLowerCase().includes(q);
+        row.hidden = !show;
+        if (show) visible++;
     });
+
+    document.querySelector('#userTable .empty').hidden = visible > 0;
 });
 
 document.querySelectorAll('.manage-user').forEach((btn) => {

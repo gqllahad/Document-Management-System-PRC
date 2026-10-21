@@ -14,16 +14,16 @@
 
         <div class="drawer-body">
             <span class="drawer-badge">{{ Str::upper(auth()->user()->division->name ?? '') }} workspace</span>
-            @include('partials.stepper', ['current' => 1])
+            @include('projects.partials.stepper', ['current' => 1])
 
             <div class="field">
-                <label for="project_name">Project name <b>*</b></label>
+                <label for="project_name">Project name<b class="required">*</b></label>
                 <input type="text" id="project_name" name="project_name" value="{{ old('project_name') }}" placeholder="Enter project name" required>
                 @error('project_name') <small class="err">{{ $message }}</small> @enderror
             </div>
 
             <div class="field">
-                <label for="approved_budget">Approved Budget for the Contract (ABC) <b>*</b></label>
+                <label for="approved_budget">Approved Budget for the Contract (ABC) <b class="required">*</b></label>
                 <div class="input-prefix">
                     <span>₱</span>
                     <input type="text" id="approved_budget" name="approved_budget" value="{{ old('approved_budget') }}" placeholder="0.00" inputmode="decimal" required>
@@ -33,7 +33,7 @@
 
 
             <div class="field">
-                    <label for="source_funds">Source of funds <b>*</b></label>
+                    <label for="source_funds">Source of funds <b class="required">*</b></label>
                     <select id="source_funds" name="source_funds" required>
                         <option value="" disabled {{ old('source_funds') ? '' : 'selected' }}>Select source</option>
                         @foreach (\App\Models\Project::SOURCE_FUNDS as $v)
@@ -41,7 +41,7 @@
                         @endforeach
                     </select>
                     @error('source_funds') <small class="err">{{ $message }}</small> @enderror
-                </div> 
+            </div> 
             <!-- project type -->
             <!-- <div class="row-2">
                 

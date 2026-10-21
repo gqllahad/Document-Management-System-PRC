@@ -29,7 +29,7 @@
 
                     <tr data-contract="{{ $project->contract_number ? 'recorded' : 'pending' }}" 
                     data-division="{{ $project->division_id }}"
-                    data-type="{{ $project->source_funds }}">
+                    data-type="{{ $project->source_funds }}" data-quarter="{{ $project->quarter }}">
 
                         <td>
                             <div class="p-name">{{ $project->project_name }}</div>
