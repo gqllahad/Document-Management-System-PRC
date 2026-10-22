@@ -7,9 +7,15 @@
 
 @section('main-content')
 <div class="page-head">
+
     <div>
-        <h2>Projects</h2>
+        <nav class="crumbs"><a href="{{ route('admin.dashboard') }}">Procurement</a> <i class="bi bi-chevron-right"></i> <span>Projects</span></nav>
+        <h2>Procurement Projects<span class="count">{{ $projects->total() }}</span></h2>
         <p>{{ auth()->user()->role === 'admin' ? 'All divisions' : Str::upper(auth()->user()->division->name) }}</p>
+    </div>
+
+    <div>
+        
     </div>
 
 </div>
@@ -19,7 +25,8 @@
 <div class="card table-card">
     <div class="table-head">
         <div>
-            <h3>Projects<span class="count">{{ $projects->total() }}</span></h3>
+            <h3>Procurement Projects</h3>
+            <!-- <h3>Projects</h3> <span class="count">{{ $projects->total() }}</span> -->
              <small>Manage all procurement projects</small>
         </div>
         <div class="table-tools">

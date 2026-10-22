@@ -29,7 +29,7 @@ class ProjectController extends Controller
 
         $quarters = Project::QUARTERS;
         
-        $projects = Project::with(['division', 'status', 'latestUpdate', 'documents'])
+        $projects = Project::with(['division', 'status', 'latestUpdate', 'documents', 'updates.status'])
             ->latest()
             ->paginate(15)
             ->withQueryString();
@@ -69,7 +69,7 @@ class ProjectController extends Controller
         
         $quarters = Project::QUARTERS;
 
-        $projects = Project::with(['status', 'division', 'latestUpdate'])
+        $projects = Project::with(['status', 'division', 'latestUpdate', 'updates.status'])
         ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id))
         ->when($request->quarter, fn ($q, $v) => $q->where('quarter', $v))
         ->latest()
@@ -190,15 +190,15 @@ class ProjectController extends Controller
         abort_if(Auth::user()->role === 'admin' || $project->division_id !== Auth::user()->division_id, 403);
 
         $request->merge([
-            'contract_price' => str_replace(',', '', $request->contract_price),
+            'contract_price' => str_replace(',', '', (string) $request->contract_price) ?: null,
         ]);
 
         $data = $request->validate([
-            'contract_number' => 'required|string|max:100|unique:projects,contract_number,' . $project->id,
-            'contract_price'  => 'required|numeric|min:0|max:' . $project->approved_budget,
+            'contract_number' => 'nullable|string|max:100|unique:projects,contract_number,' . $project->id,
+            'contract_price'  => 'nullable|numeric|min:0|max:' . $project->approved_budget,
             'winning_bidder'  => ['nullable', 'string', 'max:255'],
-            'contract_date'   => 'required|date',
-            'quarter'         => ['required', Rule::in(['EPA', '1ST', '2ND', '3RD', '4TH'])],
+            'contract_date'   => 'nullable|date',
+            'quarter'         => ['nullable',Rule::in(['EPA', '1ST', '2ND', '3RD', '4TH'])],
             'status_id'       => 'required|exists:statuses,id',
             'update'          => 'required|string|max:255',
             'status_date'     => 'required|date',
@@ -208,16 +208,17 @@ class ProjectController extends Controller
             'contract_price.min' => 'Contract price cannot be negative.',
         ]);
 
-        $date = Carbon::parse($data['contract_date']);
+        $date = !empty($data['contract_date']) ? Carbon::parse($data['contract_date']) : null;
+        $contractNumber = !empty($data['contract_number']) ? (ltrim($data['contract_number'], '.') ?: null) : null;
 
         $project->update([
-            'contract_price'  => $data['contract_price'],
-            'winning_bidder'  => $data['winning_bidder'],
+            'contract_price'  => $data['contract_price'] ?? null,
+            'winning_bidder'  => $data['winning_bidder'] ?? null,
             'contract_date'   => $date,
-            'contract_number' => ltrim($data['contract_number'], '.'), //'CS-' . now()->format('n-Y') . '-' . 
-            'quarter' => $data['quarter'],
-            'fiscal_year'     => $date->year,
-            'status_id'          => $data['status_id'],
+            'contract_number' => $contractNumber,
+            'quarter'         => $data['quarter'] ?? null,
+            'fiscal_year'     => $date?->year ?? $project->fiscal_year,
+            'status_id'       => $data['status_id'],
         ]);
 
         foreach ($request->file('documents', []) as $file) {
@@ -260,6 +261,7 @@ class ProjectController extends Controller
         $project->update([
             'ntp_date'        => $data['ntp_date'],
             'delivery_period' => $data['delivery_period'],
+            'status_id'       => $data['status_id'],
         ]);
 
         foreach ($request->file('documents', []) as $file) {

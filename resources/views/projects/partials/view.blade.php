@@ -71,11 +71,14 @@
                 <strong id="vStatus2"></strong>
                 <span class="v-date"><i class="bi bi-calendar3"></i> <span id="vStatusDate"></span></span>
                 <div class="v-note" id="vNote">
-                    <div class="v-note-head">
+                    <!-- <div class="v-note-head">
                         <span><i class="bi bi-chat-left-text"></i> Latest status</span>
                         <time id="vNoteDate"></time>
-                    </div>
-                    <p id="vUpdate"></p>
+                    </div> -->
+                    <div class="sec-title">Status history <small id="vHistCount">0</small></div>
+                    <ol class="timeline" id="vHistory"></ol>
+                    <p class="muted" id="vHistEmpty" hidden>No updates recorded yet.</p>
+                    <!-- <p id="vUpdate"></p> -->
                 </div>
                 <button type="button" class="link-toggle" id="vHistoryBtn" hidden></button>
                 <ul class="timeline" id="vHistory" hidden></ul>

@@ -28,7 +28,7 @@
     $gradient = $total ? implode(', ', $parts) : '#e5e7eb 0 100%';
 @endphp
 
-<div class="stages-panel" data-donut data-stages='@json($stageByDivision)'>
+<div class="stages-panel" data-donut data-stages='@json($stageRows)'>
     <div class="stages-head">
         <div>
             <h3 class="stages-title">Procurement stages</h3>

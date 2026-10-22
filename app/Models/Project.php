@@ -90,4 +90,10 @@ class Project extends Model
        return $this->hasOne(ProjectUpdate::class)->latestOfMany('id');
     }
 
+    // shared dash
+    public function scopeVisibleTo($q, User $user)
+    {
+        return $user->role === 'admin' ? $q : $q->where('division_id', $user->division_id);
+    }
+
 }

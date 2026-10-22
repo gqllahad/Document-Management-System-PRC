@@ -32,33 +32,33 @@
             </div>
 
             <div class="field">
-                <label for="cContract">Contract number <b class="required">*</b></label>
+                <label for="cContract">Contract number </label>
                 <input type="text" id="cContract" name="contract_number" placeholder="Enter contract number..">
                 <small class="err" id="contractErr" hidden></small>
             </div>
 
             <div class="field">
-                <label for="contract_price">Contract price <b class="required">*</b></label>
+                <label for="contract_price">Contract price </label>
                 <div class="input-prefix">
                     <span>₱</span>
-                    <input type="text" id="contract_price" name="contract_price" placeholder="0.00" inputmode="decimal" required>
+                    <input type="text" id="contract_price" name="contract_price" placeholder="0.00" inputmode="decimal">
                 </div>
                 @error('contract_price') <small class="err">{{ $message }}</small> @enderror
             </div>
 
             <div class="field">
-                <label for="winning_bidder">Winning bidder <b class="required">*</b></label>
-                <input type="text" id="winning_bidder" name="winning_bidder" placeholder="Enter winning bidder.." required>
+                <label for="winning_bidder">Winning bidder </label>
+                <input type="text" id="winning_bidder" name="winning_bidder" placeholder="Enter winning bidder.." >
             </div>
 
             <div class="row-2">
                 <div class="field">
-                    <label for="contract_date">Contract date <b class="required">*</b></label>
-                    <input type="date" id="contract_date" name="contract_date" required>
+                    <label for="contract_date">Contract date </label>
+                    <input type="date" id="contract_date" name="contract_date" >
                 </div>
                <div class="field">
-                    <label for="quarter">Quarter <b class="required">*</b></label>
-                    <select id="quarter" name="quarter" required>
+                    <label for="quarter">Quarter</label>
+                    <select id="quarter" name="quarter" >
                         <option value="" disabled selected>Select period</option>
                         <option value="EPA">EPA</option>
                         <option value="1ST">1ST Quarter</option>

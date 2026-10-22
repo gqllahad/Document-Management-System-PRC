@@ -1,5 +1,7 @@
 document.querySelectorAll('[data-delivery]').forEach(panel => {
     const sel = document.getElementById('divisionFilter');
+    const yearSel = document.getElementById('fiscalFilter');
+    const quarterSel = document.getElementById('quarterFilter');
     const rows = [...panel.querySelectorAll('.deliv-row[data-state]')];
     const tabs = [...panel.querySelectorAll('.deliv-tabs button')];
     const empty = panel.querySelector('.deliv-empty');
@@ -9,8 +11,15 @@ document.querySelectorAll('[data-delivery]').forEach(panel => {
     let tab = 'all';
 
     const render = () => {
-        const div = sel?.value ?? 'all';
-        const inDiv = rows.filter(r => div === 'all' || r.dataset.division === div);
+        const div = sel?.value || 'all';
+        const year = yearSel?.value || 'all';
+        const quarter = quarterSel?.value || 'all';
+
+        const inDiv = rows.filter(r =>
+            (div === 'all'     || r.dataset.division === div) &&
+            (year === 'all'    || r.dataset.year === year) &&
+            (quarter === 'all' || r.dataset.quarter === quarter)
+        );
         const count = s => inDiv.filter(r => s === 'all' || r.dataset.state === s).length;
 
         tabs.forEach(b => b.querySelector('em').textContent = count(b.dataset.tab));
@@ -38,6 +47,8 @@ document.querySelectorAll('[data-delivery]').forEach(panel => {
         tab = b.dataset.tab;
         render();
 
+    }));
+
     const sortBtn = panel.querySelector('.deliv-sort');
     let asc = true;
 
@@ -46,7 +57,8 @@ document.querySelectorAll('[data-delivery]').forEach(panel => {
             .forEach(r => empty.before(r));
         asc = !asc;
         });
-    }));
 
     sel?.addEventListener('change', render);
+    yearSel?.addEventListener('change', render);
+    quarterSel?.addEventListener('change', render);
 });

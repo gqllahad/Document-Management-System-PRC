@@ -64,10 +64,12 @@
                     </td>
                 </tr>
                 @empty
-               <tr class="empty" @if ($users->isNotEmpty()) hidden @endif>
-                    <td colspan="5">No registered users found.</td>
-                </tr>
+                   <tr class="empty"><td colspan="5">No registered users yet.</td></tr>
                 @endforelse
+
+                @if ($users->isNotEmpty())
+                    <tr class="empty no-results" hidden><td colspan="5">No matching user.</td></tr>
+                @endif
             </tbody>
         </table>
     </div>

@@ -7,6 +7,8 @@ document.querySelectorAll('[data-donut]').forEach(panel => {
     const items = [...panel.querySelectorAll('.stages-list li')];
     const data = JSON.parse(panel.dataset.stages);
     const divisionSel = document.getElementById('divisionFilter');
+    const yearSel = document.getElementById('fiscalFilter');
+    const quarterSel = document.getElementById('quarterFilter');
     let total = 0;
     let active = null;
 
@@ -16,12 +18,18 @@ document.querySelectorAll('[data-donut]').forEach(panel => {
     };
 
     const render = () => {
-        const div = divisionSel?.value ?? 'all';
-        const rows = div === 'all' ? Object.values(data) : [data[div] ?? {}];
-
+        const div = divisionSel?.value || 'all';
+        const year = yearSel?.value || 'all';
+        const quarter = quarterSel?.value || 'all';
+        const rows = data.filter(r =>
+                                    (div === 'all'     || String(r.d) === div) &&
+                                    (year === 'all'    || String(r.y) === year) &&
+                                    (quarter === 'all' || r.q === quarter)
+                                );
         total = 0;
         items.forEach(li => {
-            const c = rows.reduce((sum, r) => sum + (r[li.dataset.id] ?? 0), 0);
+            // const c = rows.reduce((sum, r) => sum + (r[li.dataset.id] ?? 0), 0);
+            const c = rows.filter(r => String(r.s) === li.dataset.id).length;
             li.dataset.count = c;
             li.querySelector('.stages-count').textContent = c;
             total += c;
@@ -52,5 +60,7 @@ document.querySelectorAll('[data-donut]').forEach(panel => {
     });
 
     divisionSel?.addEventListener('change', render);
+    yearSel?.addEventListener('change', render);
+    quarterSel?.addEventListener('change', render);
     render();
 });

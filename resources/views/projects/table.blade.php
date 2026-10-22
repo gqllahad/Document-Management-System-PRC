@@ -1,6 +1,6 @@
 <thead>
                 <tr>
-                    <th>Project</th>
+                    <th><button type="button" class="prj-sort">Project <i class="bi bi-arrow-down-up"></i></button></th>
                 <!-- @if ($isAdmin) <th>Division</th> @endif -->
                     <th class="num">Budget & Contract</th>
 
@@ -120,13 +120,19 @@
                                 data-winning-bidder="{{ $project->winning_bidder }}"
                                 data-status-date="{{ $project->latestUpdate?->status_date?->format('M d, Y') }}"
                                 data-docs="{{ $project->documents->map(fn ($d) => [
-                                    'id'   => $d->id,
-                                    'name' => $d->file_name ?? basename($d->file_path ?? ''),
-                                    'url' => $d->file_path ? url(Storage::url($d->file_path)) : null,
-                                    'size' => $d->file_path && Storage::disk('public')->exists($d->file_path)
-                                        ? Storage::disk('public')->size($d->file_path)
-                                        : null,
-                                ])->toJson() }}">
+                                            'id'   => $d->id,
+                                            'name' => $d->file_name ?? basename($d->file_path ?? ''),
+                                            'url' => $d->file_path ? url(Storage::url($d->file_path)) : null,
+                                            'size' => $d->file_path && Storage::disk('public')->exists($d->file_path)
+                                                ? Storage::disk('public')->size($d->file_path)
+                                                : null,
+                                        ])->toJson() }}"
+                                data-history="{{ $project->updates->sortByDesc('created_at')->map(fn ($l) => [
+                                            'status' => $l->status->name ?? '—',
+                                            'date'   => $l->status_date?->format('M d, Y'),
+                                            'note'   => $l->update,
+                                            'at'     => $l->created_at?->diffForHumans(),
+                                        ])->values()->toJson() }}">
                                  View
                             </button>
                         @if (!$isAdmin)

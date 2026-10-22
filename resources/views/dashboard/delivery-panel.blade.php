@@ -45,7 +45,8 @@
                 };
             @endphp
 
-            <div class="deliv-row" data-state="{{ $d->state }}" data-division="{{ $d->division_id }}" data-ts="{{ $d->deadline->timestamp }}">
+            <div class="deliv-row" data-state="{{ $d->state }}" data-division="{{ $d->division_id }}"
+                data-quarter="{{ $d->quarter }}" data-year="{{ $d->year }}" data-ts="{{ $d->deadline->timestamp }}">
                 <div class="deliv-proj">
                     <!-- <span class="deliv-ico"><i class="bi bi-box-seam"></i></span> -->
                     <div>

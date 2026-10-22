@@ -27,29 +27,34 @@
 <hr style="opacity: 20%;">
 
 
-<div style="display:flex;flex-direction:row;padding: 10px 20px;gap:min(4rem);align-items:center;">
+<div style="display:flex;flex-direction:row;padding: 10px 20px;gap:min(1.5rem);align-items:center;">
     <label for=""><small><i class="bi bi-sliders"></i> Overview for</small></label>
-    <div>
-        <label for="div"><small>Division</small></label>
-        <select name="div" id="divisionFilter" class="filter-select">
-            <option value="all">All divisions</option>
-            @foreach ($divisions as $d)
-                <option value="{{ $d->id }}">{{ $d->name }}</option>
-            @endforeach
-        </select>
-    </div>
+    @if(auth()->user()->role === 'admin')
+        <div>
+            <label for="div"><small>Division</small></label>
+            <select name="div" id="divisionFilter" class="filter-select">
+                <option value="all">All divisions</option>
+                @foreach ($divisions as $d)
+                    <option value="{{ $d->id }}">{{ $d->name }}</option>
+                @endforeach
+            </select>
+        </div>
+    @endif
 
     <div>
         <label for="fiscal"><small>Fiscal year</small></label>
-        <select name="fiscal" id="" class="filter-select">
-            <option value="add">2026</option>
+        <select name="fiscal" id="fiscalFilter" class="filter-select">
+            <option value="all">All</option>
         </select>
     </div>
 
     <div>
         <label for="qt"><small>Quarter</small></label>
-        <select name="qt" id="" class="filter-select">
-            <option value="add">All</option>
+        <select name="quarter" id="quarterFilter" class="filter-select">
+            <option value="all">All quarters</option>
+            @foreach ($quarters as $q)
+                <option value="{{ $q }}" @selected($filters['quarter'] === $q)>{{ $q }}</option>
+            @endforeach
         </select>
     </div>
 </div>

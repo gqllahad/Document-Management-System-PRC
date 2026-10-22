@@ -106,7 +106,7 @@ toggle?.addEventListener('click', () => {
 
                 form.reset();
                 form.dataset.id = d.id;
-                setContractErr('');
+                // setContractErr('');
                 // period();
 
                 const toStage3 = document.getElementById('toStage3');
@@ -207,10 +207,10 @@ toggle?.addEventListener('click', () => {
 
         cNum.addEventListener('input', () => {
             clearTimeout(t);
-            setContractErr('');
+            // setContractErr('');
 
             const v = cNum.value.trim().replace(/^\.+/, '');
-            if (!v) return;
+            // if (!v) return;
 
             t = setTimeout(async () => {
                 try {
@@ -444,10 +444,28 @@ toggle?.addEventListener('click', () => {
             tag.lastChild.textContent = done ? ' Recorded' : 'Pending';
             show('vStatusDate', d.statusDate || 'Status date not recorded');
             // show('vUpdate', d.update);
-            show('vUpdate', d.update || 'No update recorded yet');
-            show('vNoteDate', d.statusDate || '');
+            // show('vUpdate', d.update || 'No update recorded yet');
+            // show('vNoteDate', d.statusDate || '');
 
-            document.getElementById('vNote').classList.toggle('is-empty', !d.update);
+            // document.getElementById('vNote').classList.toggle('is-empty', !d.update);
+            const hist = JSON.parse(d.history || '[]');
+            const tl = document.getElementById('vHistory');
+            tl.innerHTML = '';
+
+            hist.forEach((h, i) => {
+                const li = document.createElement('li');
+                li.classList.toggle('current', i === 0);
+                li.innerHTML = '<div class="tl-top"><b class="tl-status"></b><time></time></div><p></p><small></small>';
+                li.querySelector('.tl-status').textContent = h.status;
+                li.querySelector('time').textContent = h.date || '';
+                li.querySelector('p').textContent = h.note || 'No remarks';
+                li.querySelector('small').textContent = h.at || '';
+                tl.append(li);
+            });
+
+            set('vHistCount', hist.length);
+            tl.hidden = !hist.length;
+            document.getElementById('vHistEmpty').hidden = hist.length > 0;
 
             // documents
             const fin = document.getElementById('vFin');

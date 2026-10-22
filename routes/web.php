@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\AuthController; // controleer s for the login
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\DashboardController;
 
 use App\Http\Controllers\AdminController;
 
@@ -28,10 +29,10 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
 
     // admin
     Route::middleware('role:admin')->group(function () {
-        Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        // Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('/admin/manage_users', [AdminController::class, 'manageUsers'])->name('admin.manage_users');
         Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])->name('admin.users.role');
-        Route::get('/admin/tracking', [AdminController::class, 'trackingProjects'])->name('admin.tracking');
+        // Route::get('/admin/tracking', [AdminController::class, 'trackingProjects'])->name('admin.tracking');
     });
 
     // head
@@ -71,6 +72,13 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
 Route::get('/register_user', [AuthController::class, 'showDivision'])->name('register');
 
 Route::post("/register_user", [AuthController::class, "register"])->name("form-register");
+
+// dashbaord
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/division/partials/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
+Route::get('/tracking', [DashboardController::class, 'trackingProjects'])->name('tracking');
+Route::get('/division/partials/tracking', [DashboardController::class, 'trackingProjects'])->name('admin.tracking');
 
 
 // admin manage user

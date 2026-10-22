@@ -6,11 +6,22 @@
         <i class="bi bi-speedometer2"></i>
         <span>Dashboard</span>
     </a>
+
+    <!-- <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+        <i class="bi bi-speedometer2"></i>
+        <span>Dashboard</span>
+    </a> -->
+
     <a href="{{ route('projects.index') }}" class="{{ request()->routeIs('projects.index', 'projects.show') ? 'active' : '' }}">
         <i class="bi bi-folder2"></i><span>Procurement Projects</span>
     </a>
 
-    <a href="#"><i class="bi bi-file-earmark-text"></i><span>Procurement Documents</span></a>
+    <!-- <a href="#"><i class="bi bi-file-earmark-text"></i><span>Procurement Documents</span></a> -->
+     <a href="{{ auth()->user()->role === 'admin' ? route('admin.tracking') : route('tracking') }}"
+            class="{{ request()->routeIs('tracking', 'admin.tracking') ? 'active' : '' }}">
+            <i class="bi bi-truck"></i><span>Tracking Monitor</span>
+    </a>
+
     <br><br><br><br><br>
     <p class="nav-label">Division</p>
 

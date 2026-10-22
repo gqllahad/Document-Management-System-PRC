@@ -13,7 +13,7 @@
 
     <ul class="notice-list">
         @foreach ($notices as $n)
-            <li class="notice-li" data-division="{{ $n->division_id }}">
+            <li class="notice-li" data-division="{{ $n->division_id }}" data-quarter="{{ $n->quarter }}" data-year="{{ $n->year }}">
                 <a href="#" class="notice-item">
                     <div>
                         <strong>{{ $n->name }}</strong>

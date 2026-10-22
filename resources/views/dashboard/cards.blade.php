@@ -1,21 +1,6 @@
 
 @php
-
     $contracted = $projects->where('contract_price', '>', 0)->count();
-    $savingsPct = $stats['abc'] > 0 ? round($stats['savings'] / $stats['abc'] * 100, 1) : 0;
-
-    function formatCurrencyShort($amount) {
-        if ($amount >= 1000000) {
-            return '₱' . number_format($amount / 1000000, 2) . 'M';
-        }
-
-        if ($amount >= 1000) {
-            return '₱' . number_format($amount / 1000, 2) . 'K';
-        }
-
-        return '₱' . number_format($amount, 2);
-    }
-
 @endphp
 
 <div class="cards-container" data-cards='@json($cardsByDivision)'>
