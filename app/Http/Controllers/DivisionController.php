@@ -87,6 +87,24 @@ class DivisionController extends Controller
         ));
     }
 
+    public function tracking($name)
+    {
+        $division = Division::whereRaw('LOWER(name) = ?', [$name])->firstOrFail();
+        $user = Auth::user();
+
+        abort_unless($user->role === 'admin' || (int) $user->division_id === (int) $division->id, 403);
+
+        $deliveries = DashboardStats::deliveries(
+            Project::with('division')->where('division_id', $division->id)->get()
+        );
+
+        return view("division.{$name}.tracking", [
+            'deliveries' => $deliveries,
+            'overdue'    => $deliveries->where('state', 'overdue')->count(),
+            'soon'       => $deliveries->where('state', 'soon')->count(),
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */

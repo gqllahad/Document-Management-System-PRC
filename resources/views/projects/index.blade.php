@@ -1,8 +1,10 @@
 @extends('layouts.shared_division')
 
 @section('title', 'Procurement Projects')
+
 @section('sidebar-class', auth()->user()->role === 'admin' ? 'sidebar-admin' : 'sidebar-division')
 @section('sidebar') @include(auth()->user()->role === 'admin' ? 'partials.sidebar-admin' : 'partials.sidebar-divisions') @endsection
+
 @section('division', Str::upper(auth()->user()->division->name ?? ''))
 
 @section('main-content')

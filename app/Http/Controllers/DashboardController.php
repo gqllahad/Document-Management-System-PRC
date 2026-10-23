@@ -19,17 +19,17 @@ class DashboardController extends Controller
     {
         // abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
 
-         $user   = Auth::user();
+        $user   = Auth::user();
         $scoped = Project::visibleTo($user);
 
         $quarters     = (clone $scoped)->whereNotNull('quarter')->distinct()->orderBy('quarter')->pluck('quarter');
         $fiscalYears  = (clone $scoped)->whereNotNull('fiscal_year')->distinct()->orderByDesc('fiscal_year')->pluck('fiscal_year');
         $projectTypes = (clone $scoped)->whereNotNull('project_type')->distinct()->orderBy('project_type')->pluck('project_type');
 
-        $divisions = Division::when($user->role !== 'admin', fn ($q) => $q->where('id', $user->division_id))
-            ->orderByRaw("CASE WHEN name = 'ICTS-OD' THEN 0 ELSE 1 END")
-            ->orderBy('name')
-            ->get();
+       $divisions = Division::visibleTo($user)
+                            ->orderByRaw("CASE WHEN name = 'ICTS-OD' THEN 0 ELSE 1 END")
+                            ->orderBy('name')
+                            ->get();
 
         $statuses = Status::orderBy('sort_order')->get();
 
@@ -40,7 +40,7 @@ class DashboardController extends Controller
             'quarter'  => $request->query('quarter', 'all'),
         ];
 
-        $projects = Project::with(['status', 'division', 'latestUpdate'])
+        $projects = (clone $scoped)->with(['status', 'division', 'latestUpdate'])
             ->visibleTo($user)
             ->when($filters['division'] !== 'all', fn ($q) => $q->where('division_id', $filters['division']))
             ->when($filters['fiscal']   !== 'all', fn ($q) => $q->where('fiscal_year', $filters['fiscal']))
@@ -135,6 +135,9 @@ class DashboardController extends Controller
         // abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
 
         //  $deliveries = $this->deliveries(Project::with('division')->get());
+        $user = Auth::user();
+        $scoped = Project::visibleTo($user);
+
         $deliveries = DashboardStats::deliveries(
             Project::with('division')->visibleTo(Auth::user())->get()
         );

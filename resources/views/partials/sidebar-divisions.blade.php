@@ -17,10 +17,16 @@
     </a>
 
     <!-- <a href="#"><i class="bi bi-file-earmark-text"></i><span>Procurement Documents</span></a> -->
-     <a href="{{ auth()->user()->role === 'admin' ? route('admin.tracking') : route('tracking') }}"
+     <!-- <a href="{{ auth()->user()->role === 'admin' ? route('admin.tracking') : route('tracking') }}"
             class="{{ request()->routeIs('tracking', 'admin.tracking') ? 'active' : '' }}">
             <i class="bi bi-truck"></i><span>Tracking Monitor</span>
-    </a>
+    </a> -->
+    @if (auth()->user()->division)
+        <a href="{{ route('division.tracking', strtolower(auth()->user()->division->name)) }}"
+        class="{{ request()->routeIs('division.tracking') ? 'active' : '' }}">
+            <i class="bi bi-truck"></i><span>Tracking Monitor</span>
+        </a>
+    @endif
 
     <br><br><br><br><br>
     <p class="nav-label">Division</p>

@@ -26,7 +26,8 @@ document.querySelectorAll('.bars-panel').forEach(panel => {
             c.title = 'Contract ' + m(vals[i].con);
         });
 
-        sub.textContent = `${sel.selectedOptions[0].text} · by quarter`;
+        const label = sel?.selectedOptions[0]?.text ?? 'Your division';
+        sub.textContent = `${label} · by quarter`;
     };
 
     sel?.addEventListener('change', render);

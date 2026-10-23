@@ -22,10 +22,12 @@ class ProjectController extends Controller
         abort_if($user->role === 'admin' || ! $user->division_id, 403);
     }
 
-    // admin view
     public function adminIndex()
     {
         $user = Auth::user();
+
+        // abort_unless(Auth::user()->role === 'admin', 403);
+        
 
         $quarters = Project::QUARTERS;
         

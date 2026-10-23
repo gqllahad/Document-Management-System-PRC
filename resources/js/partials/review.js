@@ -36,6 +36,7 @@
     ['Approved budget (ABC)', peso(num(create.approved_budget.value))],
     ['Source of funds', create.source_funds.value],
     ]);
+
   });
 
   // Stage 2

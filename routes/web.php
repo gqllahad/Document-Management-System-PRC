@@ -46,6 +46,17 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
         ->middleware('division')
         ->name('division.show');
 
+    // track
+    Route::get('/division/{name}/tracking', [DivisionController::class, 'tracking'])
+    ->whereIn('name', ['niisd', 'dmsd', 'sdmd', 'icts-od'])
+    ->middleware('division')
+    ->name('division.tracking');
+
+    Route::get('/division/{name}/tracking', [DivisionController::class, 'tracking'])
+    ->whereIn('name', ['niisd', 'dmsd', 'sdmd', 'icts-od'])
+    ->middleware('division')
+    ->name('division.tracking');
+
     // projects creation
     // Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     // Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
@@ -79,7 +90,6 @@ Route::get('/division/partials/dashboard', [DashboardController::class, 'index']
 
 Route::get('/tracking', [DashboardController::class, 'trackingProjects'])->name('tracking');
 Route::get('/division/partials/tracking', [DashboardController::class, 'trackingProjects'])->name('admin.tracking');
-
 
 // admin manage user
 // Route::get('/admin/manage-users', [

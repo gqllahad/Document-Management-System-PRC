@@ -20,7 +20,7 @@
 
             <p>
                 Securely manage, organize, and access your documents
-                in one centralized platform. 123456789  qwertyuiop
+                in one centralized platform.   
             </p>
 
         </div>
