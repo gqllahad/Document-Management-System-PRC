@@ -1,0 +1,159 @@
+.chat {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow-y: auto;
+}
+.msg {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    border: 1px solid #333;
+}
+.msg p {
+    margin: 4px 0;
+    white-space: pre-wrap;
+}
+.msg time {
+    font-size: 11px;
+    opacity: 0.6;
+}
+.msg-who {
+    font-size: 11px;
+    opacity: 0.7;
+}
+.msg.out {
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+.msg.in {
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+.chat-form {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+}
+.chat-form textarea {
+    flex: 1;
+    resize: none;
+}
+.chat-compose {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+}
+.cc-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+.cc-av {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+.cc-to {
+    margin-left: auto;
+    font-size: 12px;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.cc-to i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #16a34a;
+}
+.cc-box {
+    border-radius: 12px;
+    background: #eff4ff;
+    overflow: hidden;
+}
+.cc-tools {
+    padding: 8px 10px;
+    background: #e0e9ff;
+}
+.cc-tools button {
+    border: 0;
+    background: #fff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.cc-box textarea {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 12px;
+    resize: vertical;
+    outline: 0;
+    font: inherit;
+}
+.cc-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+.cc-foot small {
+    font-size: 12px;
+    opacity: 0.6;
+}
+.cc-foot div {
+    display: flex;
+    gap: 8px;
+}
+
+.msg {
+    border-left: 4px solid var(--c);
+    background: var(--bg);
+}
+.msg.role-admin {
+    --c: #2563eb;
+    --bg: #eff4ff;
+}
+.msg.role-fund_controller {
+    --c: #16a34a;
+    --bg: #eff4ff;
+}
+.msg.role-head {
+    --c: #d97706;
+    --bg: #eff4ff;
+}
+
+.msg.out {
+    border-left: 0;
+    border-right: 4px solid var(--c);
+}
+
+.msg-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+.msg.out .msg-top {
+    flex-direction: row-reverse;
+}
+
+.role-pill {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    background: var(--c);
+}

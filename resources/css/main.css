@@ -6,7 +6,7 @@
 @import "./cards.css";
 @import "./dashboard.css";
 @import "./tracking.css";
-
+@import "./remarks.css";
 * {
     box-sizing: border-box;
     margin: 0;
@@ -262,6 +262,7 @@ a {
     background: var(--primary-light);
     color: var(--primary);
 }
+
 .role-badge:empty {
     display: none;
 }
@@ -315,6 +316,10 @@ a {
     color: var(--muted);
     font-size: 0.875rem;
     margin-top: 0.15rem;
+}
+
+.page-head .new-project{
+    margin: 0;
 }
 
 .search {

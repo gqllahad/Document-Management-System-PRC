@@ -52,7 +52,7 @@ class DashboardController extends Controller
         $deliveredId     = $statuses->firstWhere('name', 'Delivered')?->id;
         $stageCounts     = $projects->countBy('status_id');
         $stats           = DashboardStats::summary($projects, $deliveredId);
-        $cardsByDivision = DashboardStats::cardsByDivision($projects, $deliveredId);
+        $cardRows        = DashboardStats::cardRows($projects, $deliveredId);
         $deliveries      = DashboardStats::deliveries($projects);
 
         $byQuarter = $projects->whereNotNull('quarter')->groupBy('quarter')
@@ -68,17 +68,25 @@ class DashboardController extends Controller
 
         $stageByDivision = $projects->groupBy('division_id')->map(fn ($g) => $g->countBy('status_id'));
 
-        $quarterByDivision = $projects->whereNotNull('quarter')->groupBy('division_id')
-            ->map(fn ($d) => $d->groupBy('quarter')->map(fn ($g) => [
-                'abc'      => (float) $g->sum('approved_budget'),
-                'contract' => (float) $g->where('contract_price', '>', 0)->sum('contract_price'),
-            ]));
+        // $quarterByDivision = $projects->whereNotNull('quarter')->groupBy('division_id')
+        //     ->map(fn ($d) => $d->groupBy('quarter')->map(fn ($g) => [
+        //         'abc'      => (float) $g->sum('approved_budget'),
+        //         'contract' => (float) $g->where('contract_price', '>', 0)->sum('contract_price'),
+        //     ]));
+
+        $barRows = $projects->whereNotNull('quarter')->map(fn ($p) => [
+            'd'        => $p->division_id,
+            'y'        => $p->fiscal_year,
+            'q'        => $p->quarter,
+            'abc'      => (float) $p->approved_budget,
+            'contract' => $p->contract_price > 0 ? (float) $p->contract_price : 0,
+        ])->values();
 
         return view('division.partials.dashboard', compact(
             'divisions', 'statuses', 'projects', 'stageCounts', 'stageRows',
             'stats', 'byQuarter', 'filters', 'fiscalYears',
             'projectTypes', 'quarters', 'deliveries', 'stageByDivision',
-            'quarterByDivision', 'cardsByDivision'
+            'barRows', 'cardRows'
         ));
     }
 

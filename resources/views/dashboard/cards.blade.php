@@ -3,7 +3,7 @@
     $contracted = $projects->where('contract_price', '>', 0)->count();
 @endphp
 
-<div class="cards-container" data-cards='@json($cardsByDivision)'>
+<div class="cards-container" data-cards='@json($cardRows)'>
     <!-- projects -->
     <div class="stat-card">
         <div class="stat-head">

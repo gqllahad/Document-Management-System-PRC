@@ -27,20 +27,21 @@ class DashboardStats
         ];
     }
 
-    public static function cardsByDivision(Collection $projects, ?int $deliveredId): Collection
+    public static function cardRows(Collection $projects, ?int $deliveredId): Collection
     {
-        return $projects->groupBy('division_id')->map(function ($g) use ($deliveredId) {
-            $rec = $g->whereNotNull('contract_number')->where('contract_price', '>', 0);
+        return $projects->map(function ($p) use ($deliveredId) {
+            $rec = $p->contract_number && $p->contract_price > 0;
 
             return [
-                'total'      => $g->count(),
-                'delivered'  => $g->where('status_id', $deliveredId)->count(),
-                'abc'        => (float) $g->sum('approved_budget'),
-                'contract'   => (float) $rec->sum('contract_price'),
-                'contracted' => $g->where('contract_price', '>', 0)->count(),
-                'savings'    => (float) $rec->sum(fn ($p) => $p->approved_budget - $p->contract_price),
+                'd'          => $p->division_id,
+                'y'          => $p->fiscal_year,
+                'delivered'  => $p->status_id === $deliveredId ? 1 : 0,
+                'abc'        => (float) $p->approved_budget,
+                'contract'   => $rec ? (float) $p->contract_price : 0,
+                'contracted' => $p->contract_price > 0 ? 1 : 0,
+                'savings'    => $rec ? (float) ($p->approved_budget - $p->contract_price) : 0,
             ];
-        });
+        })->values();
     }
 
     public static function deliveries(Collection $projects): Collection

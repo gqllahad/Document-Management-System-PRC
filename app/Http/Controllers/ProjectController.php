@@ -22,7 +22,7 @@ class ProjectController extends Controller
         abort_if($user->role === 'admin' || ! $user->division_id, 403);
     }
 
-    public function adminIndex()
+    public function adminIndex(Request $request)
     {
         $user = Auth::user();
 
@@ -31,25 +31,33 @@ class ProjectController extends Controller
 
         $quarters = Project::QUARTERS;
         
-        $projects = Project::with(['division', 'status', 'latestUpdate', 'documents', 'updates.status'])
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
-        
         $base = Project::query()
-        ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id));
+            ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id));
 
-        $statuses = Status::all();
+        $fiscalYears = (clone $base)
+            ->whereNotNull('fiscal_year')
+            ->distinct()
+            ->orderByDesc('fiscal_year')
+            ->pluck('fiscal_year');
+
+        $filtered = (clone $base)
+            ->when($request->fiscal_year, fn ($q, $v) => $q->where('fiscal_year', $v));
+
+        $projects = (clone $filtered)
+            ->with(['division', 'status', 'latestUpdate', 'documents', 'updates.status'])
+            ->latest()
+            ->get();
+
+        $statuses  = Status::all();
         $divisions = Division::orderBy('name')->get();
-        
 
         $counts = [
-            'all'      => (clone $base)->count(),
-            'pending' => (clone $base)->whereNull('contract_number')->count(),
-            'recorded' => (clone $base)->whereNotNull('contract_number')->count(),
+            'all'      => (clone $filtered)->count(),
+            'pending'  => (clone $filtered)->whereNull('contract_number')->count(),
+            'recorded' => (clone $filtered)->whereNotNull('contract_number')->count(),
         ];
 
-        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts', 'quarters'));
+        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts', 'quarters', 'fiscalYears'));
     }
 
     // check contract validation (ajax someting)
@@ -71,24 +79,39 @@ class ProjectController extends Controller
         
         $quarters = Project::QUARTERS;
 
-        $projects = Project::with(['status', 'division', 'latestUpdate', 'updates.status'])
-        ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id))
-        ->when($request->quarter, fn ($q, $v) => $q->where('quarter', $v))
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+         $scoped = Project::query()
+            ->when($user->role !== 'admin', fn ($q) => $q->where('division_id', $user->division_id));
 
-        $statuses = Status::orderBy('sort_order')->get();
+        $fiscalYears = (clone $scoped)
+            ->whereNotNull('fiscal_year')
+            ->distinct()
+            ->orderByDesc('fiscal_year')
+            ->pluck('fiscal_year');
 
+        $filtered = (clone $scoped)
+            ->when($request->fiscal_year, fn ($q, $v) => $q->where('fiscal_year', $v));
+
+        $projects = (clone $filtered)
+            ->with(['status', 'division', 'latestUpdate', 'updates.status'])
+            ->latest()
+            ->get();
+
+        // $projects = (clone $filtered)
+        //     ->with(['status', 'division', 'latestUpdate', 'updates.status']);
+            // ->latest();
+            // ->paginate(10)
+            // ->withQueryString();
+
+        $statuses  = Status::orderBy('sort_order')->get();
         $divisions = Division::orderByRaw("CASE WHEN name = 'ICTS-OD' THEN 0 ELSE 1 END")->orderBy('name')->get();
 
         $counts = [
-            'all'      => (clone $projects)->count(),
-            'pending' => (clone $projects)->whereNull('contract_number')->count(),
-            'recorded' => (clone $projects)->whereNotNull('contract_number')->count(),
+            'all'      => (clone $filtered)->count(),
+            'pending'  => (clone $filtered)->whereNull('contract_number')->count(),
+            'recorded' => (clone $filtered)->whereNotNull('contract_number')->count(),
         ];
 
-        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts', 'quarters'));
+        return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts', 'quarters', 'fiscalYears'));
     }
 
     /**

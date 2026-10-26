@@ -24,7 +24,7 @@
     @if (auth()->user()->division)
         <a href="{{ route('division.tracking', strtolower(auth()->user()->division->name)) }}"
         class="{{ request()->routeIs('division.tracking') ? 'active' : '' }}">
-            <i class="bi bi-truck"></i><span>Tracking Monitor</span>
+            <i class="bi bi-card-checklist"></i><span>Tracking Monitor</span>
         </a>
     @endif
 

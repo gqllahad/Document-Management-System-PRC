@@ -6,6 +6,7 @@ import './stringToNumber.js';
 
 // project
 import './partials/review.js';
+// import './partials/remarks.js';
 
 // user management
 import './partials/manageUser.js';
@@ -561,12 +562,87 @@ toggle?.addEventListener('click', () => {
                 
             });
 
+            // update
             const cont = b.closest('tr')?.querySelector('[data-continue]');
             const upd = document.getElementById('vUpdateBtn');
             if(upd){
                 upd.hidden = !cont;
                 upd.onclick = () => { closeAll(); cont?.click(); };
             }
+
+
+
+             // remakrs
+
+            const rList = document.getElementById('rList');
+            const rForm = document.getElementById('rForm');
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+
+            const labels = { admin: 'Administrator', fund_controller: 'Fund Controller', head: 'Head' };
+
+            const bubble = r => {
+                const el = document.createElement('div');
+                el.className = `msg ${r.role === 'admin' ? 'out' : 'in'} role-${r.role}`;
+                el.innerHTML = '<div class="msg-top"><span class="role-pill"></span><b class="msg-name"></b></div><p></p><time></time>';
+                el.querySelector('.role-pill').textContent = labels[r.role] ?? r.role;
+                el.querySelector('.msg-name').textContent = r.user;
+                el.querySelector('p').textContent = r.body;
+                el.querySelector('time').textContent = r.at;
+                return el;
+            };
+
+            const scrollDown = () => rList.scrollTop = rList.scrollHeight;
+
+            const loadRemarks = async id => {
+                rList.innerHTML = '';
+                const res = await fetch(`/projects/${id}/remarks`, { headers: { Accept: 'application/json' } });
+                if (!res.ok) return;
+                (await res.json()).forEach(r => rList.append(bubble(r)));
+                scrollDown();
+            };
+
+            rForm.onsubmit = async e => {
+                e.preventDefault();
+                rForm.body.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        rForm.requestSubmit();
+                    }
+                });
+
+                const body = rForm.body.value.trim();
+                if (!body) return;
+
+                const res = await fetch(`/projects/${rForm.dataset.id}/remarks`, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ body })
+                });
+
+                if (res.ok) {
+                    rList.append(bubble(await res.json()));
+                    rForm.reset();
+                    scrollDown();
+                } else {
+                    toast('Failed to send remark!', 'warning');
+                }
+            };
+
+            const rem = document.getElementById('vRemarks');
+            
+            if(rem){
+                
+                rem.onclick = () => {
+                    closeAll();
+                    show('rName', d.name);
+                    show('rCode', d.code);
+                    show('rCreated', d.created);
+                    rForm.dataset.id = d.id;
+                    loadRemarks(d.id);
+                    open(document.getElementById('remarksDrawer'));
+                };
+            }
+
             open(document.getElementById('viewDrawer'));
         };
     });

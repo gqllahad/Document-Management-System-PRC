@@ -11,6 +11,8 @@ use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\DashboardController;
 
+use App\Http\Controllers\RemarkController;
+
 use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
@@ -90,6 +92,10 @@ Route::get('/division/partials/dashboard', [DashboardController::class, 'index']
 
 Route::get('/tracking', [DashboardController::class, 'trackingProjects'])->name('tracking');
 Route::get('/division/partials/tracking', [DashboardController::class, 'trackingProjects'])->name('admin.tracking');
+
+// remarks
+Route::get('/projects/{project}/remarks', [RemarkController::class, 'index']);
+Route::post('/projects/{project}/remarks', [RemarkController::class, 'store']);
 
 // admin manage user
 // Route::get('/admin/manage-users', [

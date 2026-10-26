@@ -91,10 +91,9 @@
 
         <div class="drawer-foot">
             <button type="button" class="btn-sm v-remarks"><i class="bi bi-download"></i> Download</button>
+            <button type="button" id="vRemarks" class="btn-sm v-remarks"><i class="bi bi-pencil"></i> Add remarks</button>
             @if(auth()->user()->role !== 'admin')
                 <button type="button" class="btn-primary btn-save" id="vUpdateBtn"><i class="bi bi-pencil"></i> Update project</button>
-            @else
-            <button type="button" class="btn-sm v-remarks"><i class="bi bi-pencil"></i> Add remarks</button>
             @endif
         </div>
     </div>

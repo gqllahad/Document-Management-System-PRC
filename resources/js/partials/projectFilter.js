@@ -3,6 +3,7 @@ const buttons = document.querySelectorAll('.filter-buttons button');
 let filter = 'all';
 const divisionSel = document.getElementById('divisionFilter');
 const typeSel = document.getElementById('typeFilter');
+const yearSel = document.getElementById('fiscalFilter');
 
 const quarterSel = document.getElementById('quarterFilter');
 
@@ -22,8 +23,9 @@ function applyFilters() {
         const matchDivision = !divisionSel || divisionSel.value === 'all' || row.dataset.division === divisionSel.value;
         const matchType     = !typeSel || typeSel.value === 'all' || row.dataset.type === typeSel.value;
         const matchQuarter  = !quarterSel || quarterSel.value === 'all' || row.dataset.quarter === quarterSel.value;
+        const matchFiscal = !yearSel || yearSel.value === 'all' || row.dataset.fiscalYear === yearSel.value;
 
-        const base = matchSearch && matchDivision && matchType && matchQuarter;
+        const base = matchSearch && matchDivision && matchType && matchQuarter && matchFiscal;
 
         if (base) {
             counts.all++;
@@ -49,6 +51,7 @@ search?.addEventListener('input', applyFilters);
 divisionSel?.addEventListener('change', applyFilters);
 typeSel?.addEventListener('change', applyFilters);
 quarterSel?.addEventListener('change', applyFilters);
+yearSel?.addEventListener('change', applyFilters);
 
 buttons.forEach((btn) => {
     btn.addEventListener('click', () => {

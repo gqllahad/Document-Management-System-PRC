@@ -96,4 +96,10 @@ class Project extends Model
         return $user->role === 'admin' ? $q : $q->where('division_id', $user->division_id);
     }
 
+    // remarks
+    public function remarkMessages() 
+    { 
+        return $this->hasMany(ProjectRemark::class); 
+    }
+
 }

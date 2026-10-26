@@ -7,36 +7,36 @@
 
 @section('division', Str::upper(auth()->user()->division->name ?? ''))
 
+@php $isAdmin = auth()->user()->role === 'admin'; @endphp
+
 @section('main-content')
 <div class="page-head">
 
     <div>
         <nav class="crumbs">Procurement <i class="bi bi-chevron-right"></i> <span>Projects</span></nav>
-        <h2>Procurement Projects<span class="count">{{ $projects->total() }}</span></h2>
+        <h2>Procurement Projects<span class="count">{{ $projects->count() }}</span></h2>
         <p>{{ auth()->user()->role === 'admin' ? 'All divisions' : Str::upper(auth()->user()->division->name) }}</p>
     </div>
 
-    <div>
-        
+
+    <div class="new-project">
+        @if (!$isAdmin)
+            <button type="button" class="btn-primary" data-drawer-open="projectDrawer">
+                <i class="bi bi-plus-lg"></i> Create new project
+            </button>
+        @endif
     </div>
 
 </div>
-
-@php $isAdmin = auth()->user()->role === 'admin'; @endphp
 
 <div class="card table-card">
     <div class="table-head">
         <div>
             <h3>Procurement Projects</h3>
-            <!-- <h3>Projects</h3> <span class="count">{{ $projects->total() }}</span> -->
              <small>Manage all procurement projects</small>
         </div>
+        
         <div class="table-tools">
-            @if (!$isAdmin)
-                <button type="button" class="btn-primary" data-drawer-open="projectDrawer">
-                    <i class="bi bi-plus-lg"></i> New project
-                </button>
-            @endif
 
             <div class="tools-top">
                 @if ($isAdmin)
@@ -47,6 +47,13 @@
                         @endforeach
                     </select>
                 @endif
+
+                <select id="fiscalFilter" class="filter-select">
+                    <option value="all">All Fiscal Years</option>
+                    @foreach ($fiscalYears as $fy)
+                        <option value="{{ $fy }}">{{ $fy }}</option>
+                    @endforeach
+                </select>
 
                 <select id="quarterFilter" class="filter-select">
                     <option value="all">All quarters</option>
@@ -62,13 +69,15 @@
                     <option value="Capital Outlay - Current Fund">Capital Outlay - Current F.</option>
                     <option value="Capital Outlay - Continuing Fund">Capital Outlay - Continuing F.</option>
                 </select>
+                
 
             </div>
-
+           
             <!-- <div class="search">
                 <i class="bi bi-search"></i>
                 <input type="search" id="projectSearch" placeholder="Search project..">
             </div> -->
+            
         </div>
             
     </div>
@@ -93,8 +102,6 @@
     </div>
 </div>
 
-<div class="pagination-wrap">{{ $projects->links() }}</div>
-
 @php $stage1Err = $errors->has('project_name') || $errors->has('approved_budget'); @endphp
 
 <div class="drawer-backdrop {{ $stage1Err ? 'open' : '' }}" id="projectDrawerBackdrop"></div>
@@ -111,6 +118,10 @@
 
 <!-- stage 3 -->
  @include('projects.stages.stage3')
+
+<!-- remarks (admin) -->
+@include('projects.partials.remarks')
+
 
 <!-- review -->
 <dialog class="review" id="reviewModal">

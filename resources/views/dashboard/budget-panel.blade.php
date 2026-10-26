@@ -13,7 +13,7 @@
         : $divisions->firstWhere('id', $filters['division'])?->name;
 @endphp
 
-<div class="bars-panel" data-bars='@json($quarterByDivision)'>
+<div class="bars-panel" data-bars='@json($barRows)'>
     <div class="bars-head">
         <div>
             <h3 class="stages-title">ABC vs. contract price</h3>

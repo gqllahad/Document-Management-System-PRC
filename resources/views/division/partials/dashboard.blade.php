@@ -45,6 +45,9 @@
         <label for="fiscal"><small>Fiscal year</small></label>
         <select name="fiscal" id="fiscalFilter" class="filter-select">
             <option value="all">All</option>
+            @foreach ($fiscalYears as $fy)
+                <option value="{{ $fy }}" @selected($filters['fiscal'] === $fy)>{{ $fy }}</option>
+            @endforeach
         </select>
     </div>
 

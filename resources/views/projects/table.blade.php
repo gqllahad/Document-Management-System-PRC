@@ -29,7 +29,7 @@
 
                     <tr data-contract="{{ $project->contract_number ? 'recorded' : 'pending' }}" 
                     data-division="{{ $project->division_id }}"
-                    data-type="{{ $project->source_funds }}" data-quarter="{{ $project->quarter }}">
+                    data-type="{{ $project->source_funds }}" data-quarter="{{ $project->quarter }}" data-fiscal-year="{{ $project->fiscal_year }}">
 
                         <td>
                             <div class="p-name">{{ $project->project_name }}</div>
@@ -103,6 +103,7 @@
                        
                         <td class="actions">
                             <button type="button" class="btn-sm" data-view
+                                data-id="{{ $project->id }}"
                                 data-name="{{ $project->project_name }}"
                                 data-code="PRJ-{{ $project->created_at->year }}-{{ str_pad($project->id, 3, '0', STR_PAD_LEFT) }}"
                                 data-created="{{ $project->created_at->format('M d, Y') }}"
