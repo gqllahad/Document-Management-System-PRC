@@ -60,7 +60,7 @@
     </div>
 
     <!-- savings -->
-    <div class="stat-card">
+    <div class="stat-card stat-card--savings">
         <div class="stat-head">
             <span class="stat-title">Procurement savings</span>
             <svg class="stat-icon" viewBox="0 0 24 24" fill="none"stroke="currentColor" stroke-width="2"stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l6 6 4-4 8 8"/><path d="M15 17h6v-6"/></svg>

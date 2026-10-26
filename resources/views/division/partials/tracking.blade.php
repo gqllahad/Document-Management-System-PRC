@@ -8,7 +8,7 @@
 @section('main-content')
 <div class="page-head">
     <div>
-        <nav class="crumbs"><a href="{{ route('admin.dashboard') }}">Procurement</a> <i class="bi bi-chevron-right"></i> <span>Track delivery</span></nav>
+        <nav class="crumbs">Procurement <i class="bi bi-chevron-right"></i> <span>Track delivery</span></nav>
         <h2>Track delivery <span class="count">{{ $deliveries->count() }} scheduled</span></h2>
         <p>Notice-to-proceed timelines and delivery deadlines.</p>
     </div>

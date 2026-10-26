@@ -4,8 +4,8 @@
     /* display: grid;
     grid-template-columns: repeat(2, 1fr); */
     align-items: center;
-    gap: 2rem;
-    padding: 30px 0;
+    gap: 3rem;
+    padding: 30px 20px;
 }
 
 .stat-card {
@@ -57,3 +57,26 @@
   }
  
   .sep { color: #d1d5db; }
+
+
+  .stat-card--savings {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.stat-card--savings .stat-title { color: #166534; }
+
+.stat-card--savings .stat-icon {
+    color: #16a34a;
+    background: #dcfce7;
+    padding: 6px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+}
+
+.stat-card--savings .stat-value { color: #15803d; }
+
+.stat-card--savings .stat-meta { color: #4d7c5f; }
+
+/* .stat-card--savings { border-left: 4px solid #16a34a; } */

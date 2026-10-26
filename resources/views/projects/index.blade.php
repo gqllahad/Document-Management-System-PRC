@@ -11,7 +11,7 @@
 <div class="page-head">
 
     <div>
-        <nav class="crumbs"><a href="{{ route('admin.dashboard') }}">Procurement</a> <i class="bi bi-chevron-right"></i> <span>Projects</span></nav>
+        <nav class="crumbs">Procurement <i class="bi bi-chevron-right"></i> <span>Projects</span></nav>
         <h2>Procurement Projects<span class="count">{{ $projects->total() }}</span></h2>
         <p>{{ auth()->user()->role === 'admin' ? 'All divisions' : Str::upper(auth()->user()->division->name) }}</p>
     </div>
