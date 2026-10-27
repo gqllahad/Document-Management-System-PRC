@@ -13,36 +13,81 @@ const messages = {
     recorded: 'No projects with recorded contract.',
 };
 
+
 function applyFilters() {
     const q = (search?.value ?? '').toLowerCase();
     const counts = { all: 0, pending: 0, recorded: 0 };
     let visible = 0;
 
     document.querySelectorAll('#projectTable tbody tr:not(.empty)').forEach((row) => {
-        const matchSearch   = row.textContent.toLowerCase().includes(q);
-        const matchDivision = !divisionSel || divisionSel.value === 'all' || row.dataset.division === divisionSel.value;
-        const matchType     = !typeSel || typeSel.value === 'all' || row.dataset.type === typeSel.value;
-        const matchQuarter  = !quarterSel || quarterSel.value === 'all' || row.dataset.quarter === quarterSel.value;
-        const matchFiscal = !yearSel || yearSel.value === 'all' || row.dataset.fiscalYear === yearSel.value;
+        const matchSearch = row.textContent.toLowerCase().includes(q);
 
-        const base = matchSearch && matchDivision && matchType && matchQuarter && matchFiscal;
+        const matchDivision =
+            !divisionSel ||
+            divisionSel.value === 'all' ||
+            row.dataset.division === divisionSel.value;
+
+        const matchType =
+            !typeSel ||
+            typeSel.value === 'all' ||
+            row.dataset.type === typeSel.value;
+
+        const rowQuarters = (row.dataset.quarter || '')
+            .split(',')
+            .map(value => value.trim())
+            .filter(Boolean);
+
+        const rowYears = (row.dataset.fiscalYear || '')
+            .split(',')
+            .map(value => value.trim())
+            .filter(Boolean);
+
+        const matchQuarter =
+            !quarterSel ||
+            quarterSel.value === 'all' ||
+            rowQuarters.includes(quarterSel.value);
+
+        const matchFiscal =
+            !yearSel ||
+            yearSel.value === 'all' ||
+            rowYears.includes(yearSel.value);
+
+        const base =
+            matchSearch &&
+            matchDivision &&
+            matchType &&
+            matchQuarter &&
+            matchFiscal;
 
         if (base) {
             counts.all++;
-            if (row.dataset.contract in counts) counts[row.dataset.contract]++;
+
+            if (row.dataset.contract in counts) {
+                counts[row.dataset.contract]++;
+            }
         }
 
-        const show = base && (filter === 'all' || row.dataset.contract === filter);
+        const show =
+            base &&
+            (filter === 'all' || row.dataset.contract === filter);
+
         row.hidden = !show;
+
         if (show) visible++;
     });
 
     buttons.forEach((b) => {
-        b.querySelector('span').textContent = counts[b.dataset.filter];
+        const count = b.querySelector('span');
+
+        if (count) {
+            count.textContent = counts[b.dataset.filter] ?? 0;
+        }
     });
 
     const noResults = document.querySelector('#projectTable .no-results');
+
     if (!noResults) return;
+
     noResults.hidden = visible > 0;
     noResults.firstElementChild.textContent = messages[filter];
 }
@@ -62,19 +107,31 @@ buttons.forEach((btn) => {
     });
 });
 
-const sortBtn = document.querySelector('#projectTable .prj-sort');
-const tbody = document.querySelector('#projectTable tbody');
-let asc = true;
 
-sortBtn?.addEventListener('click', () => {
-    const rows = [...tbody.querySelectorAll('tr:not(.empty)')];
+const table = document?.querySelector('#projectTable');
+const tbody = table?.querySelector('tbody');
+const sortBtn = table?.querySelector('.prj-sort');
+const currentBtn = table?.querySelector('.current-sort');
 
+function sortRows(getValue, asc) {
+    const rows = [...tbody.querySelectorAll('tr:not(.empty):not(.no-results)')];
     rows.sort((a, b) => {
-        const x = a.querySelector('.p-name').textContent.trim();
-        const y = b.querySelector('.p-name').textContent.trim();
-        return asc ? x.localeCompare(y) : y.localeCompare(x);
+        const x = getValue(a), y = getValue(b);
+        return asc ? (x > y ? 1 : x < y ? -1 : 0) : (x < y ? 1 : x > y ? -1 : 0);
     }).forEach(r => tbody.append(r));
 
-    tbody.append(tbody.querySelector('.no-results') ?? '');
-    asc = !asc;
+    const noResults = tbody.querySelector('.no-results');
+    if (noResults) tbody.append(noResults);
+}
+
+let nameAsc = true;
+sortBtn?.addEventListener('click', () => {
+    sortRows(r => r.querySelector('.p-name').textContent.trim().toLowerCase(), nameAsc);
+    nameAsc = !nameAsc;
+});
+
+let dateAsc = false; //true 2 clicl
+currentBtn?.addEventListener('click', () => {
+    sortRows(r => new Date(r.dataset.updated).getTime() || 0, dateAsc);
+    dateAsc = !dateAsc;
 });

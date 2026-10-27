@@ -53,10 +53,16 @@ document.querySelectorAll('[data-delivery]').forEach(panel => {
     let asc = true;
 
     sortBtn?.addEventListener('click', () => {
-        rows.sort((a, b) => asc ? a.dataset.ts - b.dataset.ts : b.dataset.ts - a.dataset.ts)
-            .forEach(r => empty.before(r));
+        rows.sort((a, b) =>
+            asc
+                ? Number(a.dataset.ts) - Number(b.dataset.ts)
+                : Number(b.dataset.ts) - Number(a.dataset.ts)
+        );
+
+        rows.forEach(r => empty.before(r));
+
         asc = !asc;
-        });
+    });
 
     sel?.addEventListener('change', render);
     yearSel?.addEventListener('change', render);

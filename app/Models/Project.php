@@ -37,7 +37,7 @@ class Project extends Model
     public const QUARTERS = ['EPA', '1ST', '2ND', '3RD', '4TH'];
 
     public const UPDATES = ['installed/renewed', 'delivered', 'successful_bid', 'cancelled', 'pending', 'obligated'];
-    public const PROJECT_TYPES = ['Current','Modified',];
+    public const PROJECT_TYPES = ['Current','Modification', 'Supplemental'];
     public const SOURCE_FUNDS = ['MMOE - Current Fund','MMOE - Continuing Fund', 'Capital Outlay - Current Fund', 'Capital Outlay - Continuing Fund'];
 
     // public const EXPENSES_CLASSES = ['MOOE','CO',];
@@ -46,6 +46,11 @@ class Project extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(Documents::class);
+    }
+
+    public function procurementUnits(): HasMany
+    {
+        return $this->hasMany(ProcurementUnit::class);
     }
 
     public function status(): BelongsTo

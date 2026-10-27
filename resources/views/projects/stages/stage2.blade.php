@@ -27,6 +27,16 @@
 
             <hr>
 
+             <div class="field">
+                <label for="cUnit">Procurement unit <b class="required">*</b></label>
+                <select id="cUnit" name="procurement_unit_id" required>
+                    <option value="">Select procurement unit</option>
+                </select>
+                <small class="muted" style="padding: 6px 0;">
+                    Choose the contract or lot you want to update.
+                </small>
+            </div>
+
             <div class="sec-title">Contract details <small class="tag-warn" id="contractTag">To be completed</small>
                 <button type="button" class="link-toggle" id="unlockBtn" hidden>Edit</button>
             </div>
@@ -43,6 +53,7 @@
                     <span>₱</span>
                     <input type="text" id="contract_price" name="contract_price" placeholder="0.00" inputmode="decimal">
                 </div>
+                <small id="abcWarning" class="err" hidden></small>
                 @error('contract_price') <small class="err">{{ $message }}</small> @enderror
             </div>
 
@@ -51,22 +62,9 @@
                 <input type="text" id="winning_bidder" name="winning_bidder" placeholder="Enter winning bidder.." >
             </div>
 
-            <div class="row-2">
-                <div class="field">
-                    <label for="contract_date">Contract date </label>
-                    <input type="date" id="contract_date" name="contract_date" >
-                </div>
-               <div class="field">
-                    <label for="quarter">Quarter</label>
-                    <select id="quarter" name="quarter" >
-                        <option value="" disabled selected>Select period</option>
-                        <option value="EPA">EPA</option>
-                        <option value="1ST">1ST Quarter</option>
-                        <option value="2ND">2ND Quarter</option>
-                        <option value="3RD">3RD Quarter</option>
-                        <option value="4TH">4TH Quarter</option>
-                    </select>
-                </div>
+            <div class="field">
+                <label for="contract_date">Contract date </label>
+                <input type="date" id="contract_date" name="contract_date" >
             </div>
 
             <hr>

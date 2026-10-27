@@ -11,83 +11,126 @@
 
         <div class="drawer-body">
             <div class="v-top">
-                <span class="drawer-badge" id="vDivision"></span>
-                <span class="v-pill" id="vStatusPill"><i class="bi bi-circle"></i> <span id="vStatus"></span></span>
+                <div class="v-tags">
+                    <span class="drawer-badge" id="vDivision"></span>
+                    <span class="drawer-badge" id="vPeriod" hidden><i class="bi bi-calendar-event"></i> <span id="vPeriodText"></span></span>
+                </div>
+                <span class="v-pill" id="vStatusPill" data-tone="info">
+                    <i class="v-dot"></i>
+                    <span id="vStatus"></span>
+                    <small id="vStatusSub" hidden></small>
+                </span>
             </div>
 
             <div class="v-fin" id="vFin">
                 <small>Financial overview</small>
-                <span class="v-lbl">Contract price</span>
-                <strong id="vPrice"></strong>
-                <div class="v-abc"><span>Approved budget <em>ABC</em></span><b id="vAbc"></b></div>
+
+                <div class="v-line"><span>Approved budget <em>ABC</em></span><b id="vAbc"></b></div>
+                <div class="v-line" id="vPriceRow"><span id="vPriceLbl">Contract price</span><strong id="vPrice"></strong></div>
+
                 <div class="v-bar"><i id="vBar"></i></div>
-                <div class="v-diff" id="vDiff"></div>
-            </div>
 
-           <div class="v-sec"><i class="bi bi-file-earmark-text"></i> Contract details <small class="v-rec" id="vRecTag"><i class="bi bi-check2"></i> Recorded</small></div>
-
-            <div class="v-bidder">
-                <span class="v-ico"><i class="bi bi-trophy"></i></span>
-                <div><small>Winning bidder</small><strong id="vWinningBidder"></strong></div>
-            </div>
-
-            <div class="v-contract">
-                <small>Contract number</small>
-                <strong id="vContractNumber"></strong>
-            </div>
-
-            <div class="row-2 v-meta">
-                <div><small><i class="bi bi-calendar3"></i> Contract date</small><b id="vContractDate"></b></div>
-                <div><small>Procurement period</small><b id="vPeriodQ"></b><span id="vPeriodY"></span></div>
-            </div>
-
-            <hr>
-
-            <div id="vDelivery" hidden>
-                <div class="sec-title"><span><i class="bi bi-check-circle-fill"></i> Project completion</span><small id="vDays"></small></div>
-
-                <div class="v-remaining" id="vRemaining">
-                    <i class="bi bi-clock"></i>
-                    <div><b id="vRemainText"></b><small id="vDeadlineText"></small></div>
-                </div>
-
-                <div class="v-track"><i id="vTrackFill"></i><span class="v-pin"><i class="bi bi-geo-alt-fill"></i></span></div>
-                <div class="v-track-lbl"><span>NTP start</span><span>Delivery deadline</span></div>
-
-                <div class="row-2 v-meta">
-                    <div><small><i class="bi bi-calendar3"></i> NTP start date</small><b id="vNtp"></b></div>
-                    <div><small><i class="bi bi-geo-alt"></i> Delivery deadline</small><b id="vDeadline"></b></div>
+                <div class="v-save" id="vSave">
+                    <span id="vSaveLbl">Savings</span>
+                    <b id="vSaveAmt"></b>
+                    <small id="vSavePct"></small>
                 </div>
             </div>
 
-            <div class="v-actual">
-                <small><i class="bi bi-truck"></i> Actual delivery</small>
-                <b id="vDelivered"></b>
+            <div id="vSingle">
+                <div class="v-sec"><i class="bi bi-file-earmark-text"></i> Contract details <small class="v-rec" id="vRecTag"><i class="bi bi-check2"></i> Recorded</small></div>
+
+                    <div class="v-bidder" id="vBidderSection">
+                        <span class="v-ico"><i class="bi bi-trophy"></i></span>
+                        <div>
+                            <small>Winning bidder</small>
+                            <strong id="vWinningBidder"></strong>
+                    </div>
+                </div>
+
+       
+                <div class="v-contract" id="vContractSection">
+                    <small>Contract number</small>
+                    <strong id="vContractNumber"></strong>
+                </div>
+
+                <div class="row-2 v-meta" id="vContractMeta">
+                    <div><small><i class="bi bi-calendar3"></i> Contract date</small><b id="vContractDate"></b></div>
+                </div>
+
+                <hr>
+
+                <div id="vDelivery" hidden>
+                    <div class="sec-title"><span><i class="bi bi-check-circle-fill"></i> Project completion</span><small id="vDays"></small></div>
+
+                    <div class="v-remaining" id="vRemaining">
+                        <i class="bi bi-clock"></i>
+                        <div><b id="vRemainText"></b><small id="vDeadlineText"></small></div>
+                    </div>
+
+                    <div class="v-track"><i id="vTrackFill"></i><span class="v-pin"><i class="bi bi-geo-alt-fill"></i></span></div>
+                    <div class="v-track-lbl"><span>NTP start</span><span>Delivery deadline</span></div>
+
+                    <div class="row-2 v-meta">
+                        <div><small><i class="bi bi-calendar3"></i> NTP start date</small><b id="vNtp"></b></div>
+                        <div><small><i class="bi bi-geo-alt"></i> Delivery deadline</small><b id="vDeadline"></b></div>
+                    </div>
+                </div>
+
+                <div class="v-actual">
+                    <small><i class="bi bi-truck"></i> Actual delivery</small>
+                    <b id="vDelivered"></b>
+                </div>
+        </div>
+
+
+        <!-- TODO: units -->
+        <div id="vUnitsWrap" hidden>
+            <div class="v-sec">
+                <i class="bi bi-box-seam"></i>
+                Procurement Units
+                <small class="v-count" id="vUnitCount">0</small>
             </div>
 
-            <div class="v-sec"><i class="bi bi-arrow-repeat"></i> Progress</div>
+            <div id="vUnits">
+                <p class="text-muted">No procurement units recorded.</p>
+            </div>
+        </div>
+
+        <div class="v-sec"><i class="bi bi-arrow-repeat"></i> Progress</div>
             <div class="v-progress">
                 <small>Current Update</small>
                 <strong id="vStatus2"></strong>
-                <span class="v-date"><i class="bi bi-calendar3"></i> <span id="vStatusDate"></span></span>
+
+                <span class="v-date">
+                    <i class="bi bi-calendar3"></i>
+                    <span id="vStatusDate"></span>
+                </span>
+
+                <!-- <p id="vUpdate"></p> -->
+
                 <div class="v-note" id="vNote">
-                    <!-- <div class="v-note-head">
-                        <span><i class="bi bi-chat-left-text"></i> Latest status</span>
-                        <time id="vNoteDate"></time>
-                    </div> -->
-                    <div class="sec-title">Status history <small id="vHistCount">0</small></div>
+                    
+
+                    <div class="sec-title">
+                        Status history  <small id="vHistCount">0</small>
+                    </div>
+                    <br>
+
                     <ol class="timeline" id="vHistory"></ol>
-                    <p class="muted" id="vHistEmpty" hidden>No updates recorded yet.</p>
-                    <!-- <p id="vUpdate"></p> -->
+
+                    <p class="muted" id="vHistEmpty" hidden>
+                        No updates recorded yet.
+                    </p>
                 </div>
-                <button type="button" class="link-toggle" id="vHistoryBtn" hidden></button>
-                <ul class="timeline" id="vHistory" hidden></ul>
             </div>
 
             <div class="v-sec"><i class="bi bi-paperclip"></i> Documents <small class="v-count" id="vDocCount">0</small></div>
             <ul class="v-docs" id="vDocs"></ul>
             <div class="v-none" id="vNone" hidden><i class="bi bi-folder-x"></i> No documents uploaded</div>
-        </div>
+        
+    </div>
+    
 
         <div class="drawer-foot">
             <button type="button" class="btn-sm v-remarks"><i class="bi bi-download"></i> Download</button>

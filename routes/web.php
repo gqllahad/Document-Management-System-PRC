@@ -68,9 +68,13 @@ Route::middleware(['auth', 'nocache'])->group(function () { //protected routes
     Route::middleware(['auth'])->get('/admin/projects', [ProjectController::class, 'adminIndex'])->name('admin.projects');
     Route::get('projects/check-contract', [ProjectController::class, 'checkContract'])->name('projects.check-contract');
     Route::resource('projects', ProjectController::class);
-    Route::put('projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
-    Route::put('projects/{project}/schedule', [ProjectController::class, 'updateSchedule'])->name('projects.schedule');
+    // Route::put('projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+    // Route::put('projects/{project}/schedule', [ProjectController::class, 'updateSchedule'])->name('projects.schedule');
     Route::delete('/documents/{document}', [ProjectController::class, 'destroyDocument'])->name('documents.destroy');
+
+    Route::resource('projects', ProjectController::class);
+    Route::put('procurement-units/{procurementUnit}',[ProjectController::class, 'updateUnit'])->name('procurement-units.update');
+    Route::put('procurement-units/{procurementUnit}/schedule',[ProjectController::class, 'updateUnitSchedule'])->name('procurement-units.schedule');
 
     // Route::patch('/admin/users/{user}/role', [AdminController::class, 'updateRole'])
     // ->middleware('role:admin')
@@ -96,6 +100,7 @@ Route::get('/division/partials/tracking', [DashboardController::class, 'tracking
 // remarks
 Route::get('/projects/{project}/remarks', [RemarkController::class, 'index']);
 Route::post('/projects/{project}/remarks', [RemarkController::class, 'store']);
+
 
 // admin manage user
 // Route::get('/admin/manage-users', [

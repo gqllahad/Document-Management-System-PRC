@@ -109,6 +109,9 @@
 <!-- view -->
  @include('projects.partials.view')
 
+ <!-- remarks (admin) -->
+@include('projects.partials.remarks')
+
 @if (auth()->user()->role !== 'admin')
 <!-- stage 1 -->
 @include('projects.stages.stage1')
@@ -118,9 +121,6 @@
 
 <!-- stage 3 -->
  @include('projects.stages.stage3')
-
-<!-- remarks (admin) -->
-@include('projects.partials.remarks')
 
 
 <!-- review -->

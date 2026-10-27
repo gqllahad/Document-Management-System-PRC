@@ -46,6 +46,35 @@
     color: #1f6fe0;
 }
 
+.deliv-table{
+    /* overflow-x: auto;
+    max-height: calc(100vh - 420px);
+    overscroll-behavior: contain; */
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.deliv-table th {
+    padding: 0.75rem 1.25rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    background: var(--background);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    box-shadow: 0 1px 0 var(--border);
+}
+.deliv-table td {
+    padding: 0.85rem 1.25rem;
+    border-top: 1px solid var(--border);
+    vertical-align: middle;
+}
+
 .deliv-row {
     display: grid;
     grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.8fr) minmax(

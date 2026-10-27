@@ -10,6 +10,8 @@ import './partials/review.js';
 
 // user management
 import './partials/manageUser.js';
+import './partials/stage1.js';
+import './partials/table.js';
 
 // panels for dashboard
 import './panels/stagePanel.js';
@@ -107,90 +109,204 @@ toggle?.addEventListener('click', () => {
 
                 form.reset();
                 form.dataset.id = d.id;
-                // setContractErr('');
-                // period();
 
                 const toStage3 = document.getElementById('toStage3');
-                const contractEls = ['contract_number', 'contract_price', 'contract_date', 'quarter', 'winning_bidder'].map(n => form.elements[n]);
+                const contractEls = ['contract_number', 'contract_price', 'contract_date', 'winning_bidder'].map(n => form.elements[n]);
                 const progressEls = ['status_id', 'update', 'status_date'].map(n => form.elements[n]);
                 const setReq = (contract, progress) => {
                     contractEls.forEach(el => el.required = contract);
                     progressEls.forEach(el => el.required = progress);
                 };
 
-                const unlock = document.getElementById('unlockBtn');
-                const tag = document.getElementById('contractTag');
-                const locks = [
-                    ['contract_number', d.contractNumber],
-                    ['contract_price', d.price ? Number(d.price).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : ''],
-                    ['contract_date', d.contractDate],
-                    ['winning_bidder', d.winningBidder],
-                ];
+            const unitSelect = document.getElementById('cUnit');
+            const units = JSON.parse(d.units || '[]');
 
-                const setTag = (text, ok) => {
-                    tag.textContent = text;
-                    tag.classList.toggle('tag-ok', ok);
-                    tag.classList.toggle('tag-warn', !ok);
-                };
+            const contractFields = [
+                'contract_number',
+                'contract_price',
+                'contract_date',
+                'winning_bidder'
+            ];
 
-                let editing = false;
+            const unlock = document.getElementById('unlockBtn');
+            const tag = document.getElementById('contractTag');
 
-                setTag(!!(d.contractNumber && d.price && d.contractDate && d.quarter && d.winningBidder));
+            let editing = false;
+            let selectedUnit = null;
 
-                const lock = () => {
-                editing = false;
+            unitSelect.innerHTML = '<option value="">Select procurement unit</option>';
 
-                locks.forEach(([name, val]) => {
-                    const el = form.elements[name];
-                    el.value = val || '';
-                    el.readOnly = !!val;
-                    el.classList.toggle('locked', !!val);
-                });
+            units.forEach(unit => {
+                const option = document.createElement('option');
+                option.value = unit.id;
+                option.textContent = unit.name;
+                unitSelect.appendChild(option);
+            });
 
-                q.value = d.quarter || '';
-                q.dataset.touched = d.quarter ? '1' : '';
-                q.classList.toggle('locked', !!d.quarter);
-                q.tabIndex = d.quarter ? -1 : 0;
-
-                const done = !!(d.contractNumber && d.price && d.contractDate && d.quarter && d.winningBidder);
-                setTag(done ? 'Recorded' : 'To be completed', done);
-
-                unlock.textContent = 'Edit';
-                unlock.hidden = !(locks.some(([, v]) => v) || d.quarter);
+            const setTag = (text, ok) => {
+                tag.textContent = text;
+                tag.classList.toggle('tag-ok', ok);
+                tag.classList.toggle('tag-warn', !ok);
             };
 
-            const edit = () => {
+            const loadUnit = () => {
+                selectedUnit = units.find(
+                    unit => String(unit.id) === unitSelect.value
+                );
+
+                form.dataset.unitId = selectedUnit?.id || '';
+                form.action = selectedUnit
+                    ? `/procurement-units/${selectedUnit.id}`
+                    : '';
+
+                contractFields.forEach(name => {
+                    const el = form.elements[name];
+                    el.value = '';
+                    el.readOnly = false;
+                    el.classList.remove('locked');
+                });
+
+                if (!selectedUnit) {
+                    setTag('Select a unit', false);
+                    unlock.hidden = true;
+                    return;
+                }
+
+                const values = {
+                    contract_number: selectedUnit.contractNumber,
+                    contract_price: selectedUnit.price,
+                    contract_date: selectedUnit.contractDate,
+                    winning_bidder: selectedUnit.winningBidder
+                };
+
+                contractFields.forEach(name => {
+                    const el = form.elements[name];
+                    const value = values[name] ?? '';
+
+                    el.value = name === 'contract_price' && value !== ''
+                        ? Number(value).toLocaleString('en-PH', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        })
+                        : value;
+
+                    el.readOnly = !!value;
+                    el.classList.toggle('locked', !!value);
+                });
+
+                if (selectedUnit.status) {
+                    form.elements.status_id.value = selectedUnit.status;
+                }
+
+                editing = false;
+
+               const done = contractFields.every(name => !!values[name]);
+                setTag(done ? 'Recorded' : 'To be completed', done);
+
+                unlock.hidden = !contractFields.some(name => !!values[name]);
+                unlock.textContent = 'Edit';
+            };
+
+            unitSelect.onchange = loadUnit;
+
+            const priceInput = form.querySelector('[name="contract_price"]');
+            const abcWarning = document.getElementById('abcWarning');
+
+            const checkPrice = () => {
+                const price = parseFloat(priceInput.value.replace(/,/g, '')) || 0;
+
+                const otherUnitsTotal = units.reduce((total, unit) => {
+                    if (String(unit.id) === String(selectedUnit?.id)) {
+                        return total;
+                    }
+
+                    return total + (parseFloat(unit.price) || 0);
+                }, 0);
+
+                const remainingABC = maxPrice - otherUnitsTotal;
+                const over = price > remainingABC;
+                const zero = priceInput.value.trim() !== '' && price <= 0;
+
+                abcWarning.textContent = over
+                ? `Contract price cannot exceed the remaining ABC of ₱${remainingABC.toLocaleString('en-PH', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}.`
+                : zero
+                    ? 'Contract price must be greater than ₱0.'
+                    : '';
+
+                abcWarning.hidden = !(over || zero);
+
+                priceInput.closest('.input-prefix')?.classList.toggle('invalid', over || zero);
+            };
+
+            priceInput.addEventListener('input', checkPrice);
+
+            unitSelect.addEventListener('change', checkPrice);
+
+            unlock.onclick = () => {
+                if (!selectedUnit) return;
+
+                if (editing) {
+                    loadUnit();
+                    return;
+                }
+
                 editing = true;
 
-                locks.forEach(([name]) => {
+                contractFields.forEach(name => {
                     const el = form.elements[name];
                     el.readOnly = false;
                     el.classList.remove('locked');
                 });
-                q.classList.remove('locked');
-                q.tabIndex = 0;
 
                 setTag('Editing', false);
                 unlock.textContent = 'Cancel';
             };
 
-            unlock.onclick = () => (editing ? lock() : edit());
-             toStage3.onclick = () => openStage3(d, b);
-            lock();
+            unitSelect.value = '';
+            loadUnit();
 
-                form.action = d.action;
-                set('cName', d.name);
-                set('cCode', d.code);
-                set('cCreated', d.created);
-                set('cAbc', d.abc);
+            toStage3.onclick = () => {
+            if (!selectedUnit) {
+                toast('Please select a procurement unit first.', 'warning');
+                return;
+            }
 
-                maxPrice = parseFloat(d.abc.replace(/,/g, ''));
+            openStage3({
+                    id: d.id,
+                    unitId: selectedUnit.id,
+                    name: d.name,
+                    code: d.code,
+                    source: d.source,
+                    abc: d.abc,
+                    contractNumber: selectedUnit.contractNumber,
+                    contractDate: selectedUnit.contractDate,
+                    quarter: d.quarter,
+                    winningBidder: selectedUnit.winningBidder,
+                    price: selectedUnit.price,
+                    statusId: selectedUnit.status,
+                    ntp: selectedUnit.ntpDate,
+                    deliveryPeriod: selectedUnit.deliveryPeriod
+                }, b);
+            };
 
-                if (form.status_id && d.status) {
-                    form.status_id.value = d.status;
-                }
+            // lock();
 
-                open(document.getElementById('continueDrawer'));
+            // form.elements.quarter.value = d.quarter || '';
+            set('cName', d.name);
+            set('cCode', d.code);
+            set('cCreated', d.created);
+            set('cAbc', d.abc);
+
+            maxPrice = parseFloat(String(d.abc).replace(/,/g, ''));
+
+            if (form.status_id && d.status) {
+                form.status_id.value = d.status;
+            }
+
+            open(document.getElementById('continueDrawer'));
             };   
             });
 
@@ -208,14 +324,12 @@ toggle?.addEventListener('click', () => {
 
         cNum.addEventListener('input', () => {
             clearTimeout(t);
-            // setContractErr('');
 
             const v = cNum.value.trim().replace(/^\.+/, '');
-            // if (!v) return;
 
             t = setTimeout(async () => {
                 try {
-                    const url = `/projects/check-contract?number=${encodeURIComponent(v)}&ignore=${form.dataset.id || ''}`;
+                    const url = `/projects/check-contract?number=${encodeURIComponent(v)}&project=${form.dataset.id || ''}&ignore=${form.dataset.unitId || ''}`;
                     const res = await fetch(url, { headers: { Accept: 'application/json' } });
                     const { taken } = await res.json();
                     if (cNum.value.trim().replace(/^\.+/, '') === v) {
@@ -225,18 +339,6 @@ toggle?.addEventListener('click', () => {
             }, 400);
         });
 
-        const priceInput = form.querySelector('[name="contract_price"]');
-
-            const checkPrice = () => {
-                const price = parseFloat(priceInput.value.replace(/,/g, '')) || 0;
-                const over = price > maxPrice;
-
-                priceInput.setCustomValidity(over ? 'Contract price cannot exceed the ABC.' : '');
-                priceInput.closest('.input-prefix')?.classList.toggle('invalid', over);
-            };
-
-            priceInput.addEventListener('input', checkPrice);
-
         form.onsubmit = e => {
 
             if (!form.checkValidity()) { // price > maxPrice
@@ -245,12 +347,12 @@ toggle?.addEventListener('click', () => {
             }
         };
 
-        q.onchange = () => (q.dataset.touched = '1');
+        // q.onchange = () => (q.dataset.touched = '1');
 
-        contractDate.onchange = () => {
-            if (!contractDate.value || q.dataset.touched || q.classList.contains('locked')) return;
-            q.value = ['1ST', '2ND', '3RD', '4TH'][Math.floor(new Date(contractDate.value).getMonth() / 3)];
-        };
+        // contractDate.onchange = () => {
+        //     if (!contractDate.value || q.dataset.touched || q.classList.contains('locked')) return;
+        //     q.value = ['1ST', '2ND', '3RD', '4TH'][Math.floor(new Date(contractDate.value).getMonth() / 3)];
+        // };
     }
 
     // Document file count
@@ -269,6 +371,22 @@ toggle?.addEventListener('click', () => {
     if (s3) {
         const ntp = s3.elements.ntp_date;
         const days = s3.elements.delivery_period;
+        const statusSel = s3.elements.status_id;
+        const delBox = document.getElementById('deliveredBox');
+        const delInput = document.getElementById('actual_date_of_delivery');
+
+        const syncDelivered = () => {
+            const isDelivered = /delivered/i.test(statusSel.options[statusSel.selectedIndex]?.text || '');
+            delBox.hidden = !isDelivered;
+            delInput.disabled = !isDelivered;
+            delInput.required = isDelivered;
+            if (!isDelivered) delInput.value = '';
+            else delInput.min = ntp.value || '';
+        };
+
+        statusSel.addEventListener('change', syncDelivered);
+        ntp.addEventListener('input', syncDelivered);
+
         const out = document.getElementById('expectedDate');
         let cont = null;
 
@@ -324,8 +442,19 @@ toggle?.addEventListener('click', () => {
         unlock.onclick = () => (editing ? lock() : edit());
 
         window.openStage3 = (d, btn) => {
+             s3.reset();
+
             cont = btn || null;
-            s3.action = `/projects/${d.id}/schedule`;
+
+            const unitId = d.unitId || s3.dataset.unitId;
+
+            if (!unitId) {
+                toast('Please select a procurement unit first.', 'warning');
+                return;
+            }
+
+            s3.dataset.unitId = unitId;
+            s3.action = `/procurement-units/${unitId}/schedule`;
 
             set('nName', d.name);
             set('nCode', d.code);
@@ -337,22 +466,31 @@ toggle?.addEventListener('click', () => {
             set('nWinningBidder', d.winningBidder);
             set('nPrice', d.price ? Number(d.price).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '');
 
-            s3.reset();
             s3.elements.status_id.value = d.statusId || d.status || '';
-            set('fileCount3', '0 files');
 
             ntp.min = d.contractDate || '';
-            saved = { ntp: d.ntp || '', days: d.deliveryPeriod || '' };
+            saved = {
+                ntp: d.ntp || '',
+                days: d.deliveryPeriod || ''
+            };
+
             lock();
 
             closeAll();
             open(document.getElementById('ntpDrawer'));
         };
 
-        document.getElementById('nEditBtn').onclick = () => { closeAll(); cont?.click(); };
-
         document.querySelectorAll('[data-schedule]').forEach(b => {
-            b.onclick = () => openStage3(b.dataset, b.closest('tr')?.querySelector('[data-continue]'));
+            b.onclick = () => {
+                const d = b.dataset;
+
+                if (!d.unitId) {
+                    toast('Procurement unit not found.', 'warning');
+                    return;
+                }
+
+                openStage3(d, b);
+            };
         });
 
         document.getElementById('documents3').onchange = e => {
@@ -374,28 +512,170 @@ toggle?.addEventListener('click', () => {
     const peso = n => '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2 });
     const kb = b => b == null ? '' : b < 1048576 ? Math.round(b / 1024) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
 
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    const fmtDate = x => x.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
+
+    function deadlineInfo(u) {
+        if (!u.ntp_date || !u.delivery_period) return null;
+        const end = new Date(u.ntp_date);
+        end.setDate(end.getDate() + u.delivery_period);
+
+        if (u.actual_delivery) {
+            const late = Math.round((new Date(u.actual_delivery) - end) / 864e5);
+            return { end, state: late > 0 ? 'late' : 'ok', text: late > 0 ? `Delivered ${late}d late` : 'Delivered on time' };
+        }
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const left = Math.round((end - today) / 864e5);
+        if (left < 0) return { end, state: 'late', text: `${-left}d overdue` };
+        return { end, state: left <= 7 ? 'warn' : 'ok', text: `${left}d remaining` };
+    }
+
+    function renderUnits(units) {
+        const wrap = document.getElementById('vUnits');
+        wrap.innerHTML = units.map((u, i) => {
+            const dl = deadlineInfo(u);
+            const cell = (label, value) => `<div><small>${label}</small><b>${esc(value) || '—'}</b></div>`;
+
+            return `
+            <article class="u-card">
+                <header class="u-head">
+                    <span class="u-no">${i + 1}</span>
+                    <h4>${esc(u.name || 'Procurement unit')}</h4>
+                    ${u.status ? `<span class="pill pill-role">${esc(u.status)}</span>` : ''}
+                </header>
+
+                <div class="u-contract">
+                    <div>
+                        <small>Contract number</small>
+                        <strong>${esc(u.contract_number) || 'Not recorded'}</strong>
+                    </div>
+                    <div class="u-price">
+                        <small>Contract price</small>
+                        <strong>${u.contract_price == null ? '—' : peso(u.contract_price)}</strong>
+                    </div>
+                </div>
+
+                <div class="u-bidder">
+                    <i class="bi bi-trophy"></i>
+                    <span>${esc(u.winning_bidder) || 'Winning bidder not recorded'}</span>
+                </div>
+
+                <div class="u-grid">
+                    ${cell('Contract date', u.contract_date)}
+                    ${cell('NTP date', u.ntp_date)}
+                    ${cell('Delivery period', u.delivery_period == null ? '' : u.delivery_period + ' days')}
+                    ${cell('Actual delivery', u.actual_delivery)}
+                </div>
+
+                ${dl ? `
+                <div class="u-deadline" data-state="${dl.state}">
+                    <i class="bi bi-clock"></i>
+                    <span>${dl.text}</span>
+                    <small>Deadline · ${fmtDate(dl.end)}</small>
+                </div>` : ''}
+
+                ${u.items?.length ? `
+                <details class="u-items">
+                    <summary>${u.items.length} item${u.items.length > 1 ? 's' : ''}</summary>
+                    <ul>${u.items.map(it => `
+                        <li>
+                            <span>${esc(it.name)}</span>
+                            <small>${it.quantity ?? 1} ${esc(it.unit || '')}${it.unit_price == null ? '' : ' · ' + peso(it.unit_price)}</small>
+                        </li>`).join('')}
+                    </ul>
+                </details>` : ''}
+            </article>`;
+        }).join('');
+    }
+
     document.querySelectorAll('[data-view]').forEach(b => {
         b.onclick = () => {
             const d = b.dataset;
             const abc = parseFloat(d.abc) || 0;
-            const price = d.price === '' ? null : parseFloat(d.price);
+
+            const units = JSON.parse(d.units || '[]');
+            const unitsContainer = document.getElementById('vUnits');
+
+            const one = units.length === 1 ? units[0] : null;
+
+            const src = one ? {
+                contractNumber: one.contract_number,
+                contractDate:   one.contract_date,
+                winningBidder:  one.winning_bidder,
+                price:          one.contract_price,
+                ntp:            one.ntp_date,
+                deliveryPeriod: one.delivery_period,
+                delivered:      one.actual_delivery,
+            } : d;
+
+            const price = src.price == null || src.price === '' ? null : parseFloat(src.price);
+
+            const toneOf = s =>
+                /deliver|complete/i.test(s) ? 'ok' :
+                /cancel|fail/i.test(s)      ? 'bad' :
+                /pending|ongoing|bidding|pre-?proc/i.test(s) ? 'warn' : 'info';
+
+            const isDone = s => toneOf(s || '') === 'ok';
+
+            let pillText, pillSub = '', pillTone;
+
+            if (units.length > 1) {
+                const done = units.filter(u => isDone(u.status)).length;
+                pillText = `${units.length} units`;
+                pillSub  = `${done} delivered`;
+                pillTone = done === units.length ? 'ok' : done ? 'info' : toneOf(units[0].status);
+            } else {
+                pillText = one?.status || d.status || 'No status';
+                pillTone = toneOf(pillText);
+            }
+
+            const pill = document.getElementById('vStatusPill');
+            pill.dataset.tone = pillTone;
+            pill.title = units.length > 1
+                ? units.map(u => `${u.name}: ${u.status || '—'}`).join('\n')
+                : pillText;
+
+            document.getElementById('vStatusSub').hidden = !pillSub;
+
+            const latestUnit = units.filter(unit => unit.status && unit.status_date).sort((a, b) => new Date(b.status_date) - new Date(a.status_date))[0];
+
+            const currentStatus = latestUnit? `${latestUnit.name} — ${latestUnit.status}` : d.status;
 
             show('vName', d.name);
             show('vCode', d.code);
             show('vCreated', d.created);
             show('vDivision', d.division);
-            show('vStatus', d.status);
-            show('vStatus2', d.status);
+            set('vStatus', pillText);
+            set('vStatusSub', pillSub);
+            show('vStatus2', currentStatus);
             show('vAbc', peso(abc));
             show('vPrice', price == null ? '' : peso(price));
-            show('vContractNumber', d.contractNumber || 'Not recorded');
-            show('vContractDate', d.contractDate);
-            show('vWinningBidder', d.winningBidder || 'Not yet recorded');
+            show('vContractNumber', src.contractNumber || 'Not recorded');
+            show('vContractDate', src.contractDate);
+            show('vWinningBidder', src.winningBidder || 'Not yet recorded');
+
+            const bidderSection = document.getElementById('vBidderSection');
+            const bidder = document.getElementById('vWinningBidder');
+
+            const unitCount = document.getElementById('vUnitCount');
+
+            const multi = units.length > 1;
+
+            // document.getElementById('vFin').classList.toggle('multi', multi);
+            document.getElementById('vSingle').hidden = multi;
+            document.getElementById('vUnitsWrap').hidden = !multi;
+            document.getElementById('vUnitCount').textContent = units.length;
+
+            if (multi) renderUnits(units);
 
             const [pq, py] = (d.period || '').split(' · ');
             const ord = { '1ST': '1st quarter', '2ND': '2nd quarter', '3RD': '3rd quarter', '4TH': '4th quarter', EPA: 'EPA' };
-            show('vPeriodQ', ord[pq] || pq);
-            show('vPeriodY', py || '');
+            const period = [ord[pq] || pq, py].filter(Boolean).join(' · ');
+
+            document.getElementById('vPeriod').hidden = !period;
+            set('vPeriodText', period);
 
             show('vDelivered', d.delivered || 'Not yet delivered');
             show('vNtp', d.ntp);
@@ -403,6 +683,9 @@ toggle?.addEventListener('click', () => {
             const box = document.getElementById('vDelivery');
             const start = d.ntp ? new Date(d.ntp) : null;
             const days = parseInt(d.deliveryPeriod) || 0;
+
+            const delivered = src.delivered ? new Date(src.delivered) : null;
+
             box.hidden = !(start && days);
 
             if (!box.hidden) {
@@ -413,7 +696,6 @@ toggle?.addEventListener('click', () => {
 
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-                const delivered = d.delivered ? new Date(d.delivered) : null;
                 const left = Math.round((end - today) / DAY);
 
                 let text, state;
@@ -439,7 +721,8 @@ toggle?.addEventListener('click', () => {
                 document.getElementById('vRemaining').dataset.state = state;
             }
 
-            const done = !!(d.contractNumber && d.contractDate && d.period && d.winningBidder);
+            // const done = !!(d.contractNumber && d.contractDate && d.period && d.winningBidder);
+            const done = !!(src.contractNumber && src.contractDate && src.winningBidder);
             const tag = document.getElementById('vRecTag');
             tag.classList.toggle('pending', !done);
             tag.lastChild.textContent = done ? ' Recorded' : 'Pending';
@@ -449,18 +732,44 @@ toggle?.addEventListener('click', () => {
             // show('vNoteDate', d.statusDate || '');
 
             // document.getElementById('vNote').classList.toggle('is-empty', !d.update);
-            const hist = JSON.parse(d.history || '[]');
+
+            // const hist = JSON.parse(d.history || '[]');
+            // const tl = document.getElementById('vHistory');
+            // tl.innerHTML = '';
+
+            const hist = JSON.parse(d.history || '[]').sort((a, b) => {
+                const dateA = new Date(a.created_at || a.at || 0).getTime();
+                const dateB = new Date(b.created_at || b.at || 0).getTime();
+                return dateB - dateA;
+            });
+
             const tl = document.getElementById('vHistory');
             tl.innerHTML = '';
+
+            const latest = hist[0];
+
+            show(
+                'vStatus2',
+                latest ? `${latest.unit ? latest.unit + ' — ' : ''}${latest.status}` : 'No updates yet'
+            );
+
+            show('vStatusDate', latest?.date || 'Status date not recorded');
+            show('vUpdate', latest?.note || 'No update recorded yet');
 
             hist.forEach((h, i) => {
                 const li = document.createElement('li');
                 li.classList.toggle('current', i === 0);
-                li.innerHTML = '<div class="tl-top"><b class="tl-status"></b><time></time></div><p></p><small></small>';
-                li.querySelector('.tl-status').textContent = h.status;
+
+                li.innerHTML =
+                    '<div class="tl-top"><b class="tl-status"></b><time></time></div><p></p><small></small>';
+
+                li.querySelector('.tl-status').textContent =
+                    `${h.unit ? h.unit + ' — ' : ''}${h.status}`;
+
                 li.querySelector('time').textContent = h.date || '';
                 li.querySelector('p').textContent = h.note || 'No remarks';
                 li.querySelector('small').textContent = h.at || '';
+
                 tl.append(li);
             });
 
@@ -468,21 +777,35 @@ toggle?.addEventListener('click', () => {
             tl.hidden = !hist.length;
             document.getElementById('vHistEmpty').hidden = hist.length > 0;
 
-            // documents
+            // financial
             const fin = document.getElementById('vFin');
-            const diff = document.getElementById('vDiff');
-            const over = price != null && price > abc;
+            const priced = units.filter(u => u.contract_price != null);
+            const hasPrice = units.length ? priced.length > 0 : price != null;
+            const total = units.length
+                ? priced.reduce((s, u) => s + Number(u.contract_price), 0)
+                : (price ?? 0);
+            const allPriced = units.length ? priced.length === units.length : price != null;
+
+            const gap = abc - total;
+            const over = hasPrice && gap < 0;
+
             fin.classList.toggle('over', over);
-            document.getElementById('vBar').style.width = (price && abc ? Math.min(price / abc * 100, 100) : 0) + '%';
+            fin.classList.toggle('has-price', hasPrice);
 
-            if (price == null || !abc) {
-                diff.textContent = 'No contract price recorded';
-            } else {
-                const gap = Math.abs(abc - price);
-                diff.innerHTML = `<i class="bi bi-graph-${over ? 'up' : 'down'}-arrow"></i> `;
-                diff.append(`${peso(gap)} ${over ? 'over' : 'below'} budget · ${(gap / abc * 100).toFixed(1)}%`);
-            }
+            set('vPriceLbl', units.length > 1
+                ? `Total contracted · ${priced.length}/${units.length} units`
+                : 'Contract price');
+            show('vPrice', hasPrice ? peso(total) : 'Not recorded');
 
+            document.getElementById('vBar').style.width =
+                (hasPrice && abc ? Math.min(total / abc * 100, 100) : 0) + '%';
+
+            set('vSaveLbl', over ? 'Over budget' : allPriced ? 'Savings' : 'Unallocated');
+            set('vSaveAmt', hasPrice ? peso(Math.abs(gap)) : '—');
+            set('vSavePct', hasPrice && abc ? `${(Math.abs(gap) / abc * 100).toFixed(1)}% of ABC` : '')
+
+
+            // dovuments
             const docs = JSON.parse(d.docs || '[]');
             const ul = document.getElementById('vDocs');
             ul.innerHTML = '';
@@ -505,7 +828,6 @@ toggle?.addEventListener('click', () => {
             //     li.append(a);
             //     ul.append(li);
             // });
-
 
             docs.forEach(f => {
                 const li = document.createElement('li');
@@ -570,9 +892,7 @@ toggle?.addEventListener('click', () => {
                 upd.onclick = () => { closeAll(); cont?.click(); };
             }
 
-
-
-             // remakrs
+            // remakrs
 
             const rList = document.getElementById('rList');
             const rForm = document.getElementById('rForm');

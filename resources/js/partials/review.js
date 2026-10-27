@@ -31,11 +31,49 @@
     e.preventDefault();
     if (!create.reportValidity()) return;
 
-    openReview(create, [
+  //   openReview(create, [
+  //     ['Project name', create.project_name.value, true],
+  //     ['Project type', create.project_type.value],
+  //     ['Approved budget (ABC)', peso(num(create.approved_budget.value))],
+  //     ['Source of funds', create.source_funds.value, true],
+  // ]);
+    const structure = create.querySelector(
+      'input[name="procurement_structure"]:checked'
+  )?.value;
+
+  const unitInputs = [
+      ...create.querySelectorAll('input[name="units[]"]:not(:disabled)')
+  ];
+
+  const rows = [
       ['Project name', create.project_name.value, true],
-    ['Approved budget (ABC)', peso(num(create.approved_budget.value))],
-    ['Source of funds', create.source_funds.value],
-    ]);
+      [
+          'Project type', create.project_type.value, true
+      ],
+      [
+          'Approved budget (ABC)',
+          peso(num(create.approved_budget.value))
+      ],
+      ['Source of funds', create.source_funds.value, true],
+      [
+          'Procurement structure',
+          structure === 'multiple' ? 'Multiple Units' : 'Main Contract',
+          true
+      ],
+      ['Quarter',create.quarter.value, true],
+  ];
+
+  if (structure === 'multiple') {
+      unitInputs.forEach((input, index) => {
+          rows.push([
+              `Unit ${index + 1}`,
+              input.value,
+              true
+          ]);
+      });
+  }
+
+  openReview(create, rows);
 
   });
 
@@ -50,8 +88,6 @@
     const files = [...$('documents').files].map(f => f.name);
     const status = $('status_id');
 
-
-    // TODO:WInning bidder
     openReview(cont, [
       ['Project', $('cName').textContent, true],
       ['Contract number', $('cContract').value],
@@ -64,6 +100,52 @@
       ['Current status', $('update').value, true],
       ['Documents', files.length ? files.join(', ') : 'No files attached', true],
     ], abc && price > abc ? `Contract price exceeds the ABC (${peso(abc)}).` : '');
+  });
+
+
+  // Stage 3
+  const ntpForm = $('ntpForm');
+
+  ntpForm?.addEventListener('submit', e => {
+    e.preventDefault();
+
+    if (!ntpForm.reportValidity()) return;
+
+    const ntpDate = $('ntp_date').value;
+    const period = Number($('delivery_period').value);
+    const status = $('status_id3');
+    const statusDate = $('update_date3').value;
+    const delivered = $('actual_date_of_delivery');
+    const files = [...$('documents3').files].map(f => f.name);
+
+
+    let expectedDate = '—';
+
+    if (ntpDate && period > 0) {
+      const date = new Date(ntpDate + 'T00:00:00');
+      date.setDate(date.getDate() + period);
+
+      expectedDate = date.toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    openReview(ntpForm, [
+      ['Project', $('nName').textContent, true],
+      ['Contract number', $('nContract').textContent],
+      ['Winning bidder', $('nWinningBidder').textContent],
+      ['Contract price', '₱' + ($('nPrice').textContent || '0')],
+      ['NTP date', ntpDate],
+      ['Delivery period', period + ' calendar days'],
+      ['Expected delivery', expectedDate],
+      ['Status',status.options[status.selectedIndex].text],
+      ...(delivered && !delivered.disabled ? [['Actual delivery', delivered.value]] : []),
+      ['Status date', statusDate],
+      ['Current status', $('update3').value, true],
+      ['Documents',files.length ? files.join(', ') : 'No files attached',true],
+    ]);
   });
 
   dlg?.addEventListener('click', e => {

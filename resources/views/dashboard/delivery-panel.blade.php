@@ -49,9 +49,16 @@
                 data-quarter="{{ $d->quarter }}" data-year="{{ $d->year }}" data-ts="{{ $d->deadline->timestamp }}">
                 <div class="deliv-proj">
                     <!-- <span class="deliv-ico"><i class="bi bi-box-seam"></i></span> -->
-                    <div>
+                   <div>
                         <strong>{{ $d->name }}</strong>
-                        <small>{{ $d->division }} <span>/</span> {{ $d->contract_no }}</small>
+
+                        @if (!empty($d->unit_name))
+                            <small class="text-muted">{{ $d->unit_name }}</small>
+                        @endif
+
+                        <small>
+                            {{ $d->division }} <span>/</span> {{ $d->contract_no }}
+                        </small>
                     </div>
                 </div>
 

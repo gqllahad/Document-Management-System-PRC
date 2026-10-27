@@ -7,6 +7,10 @@
 @import "./dashboard.css";
 @import "./tracking.css";
 @import "./remarks.css";
+@import "./toggle.css";
+@import "./units.css";
+
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -973,7 +977,8 @@ a.btn-primary {
     color: var(--muted);
 }
 .badge-new {
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: row;
     margin-right: 4px;
     padding: 1px 5px;
     font-size: 0.6rem;

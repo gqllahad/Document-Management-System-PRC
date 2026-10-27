@@ -15,7 +15,7 @@
             @include('projects.partials.stepper', ['current' => 3])
 
             <div class="sec-title">Project & contract <small><i class="bi bi-lock"></i> Read-only</small>
-                <button type="button" class="link-toggle" id="nEditBtn">Edit</button>
+                <!-- <button type="button" class="link-toggle" id="nEditBtn">Edit</button> -->
             </div>
 
             <div class="recorded">
@@ -79,11 +79,20 @@
                 </select>
             </div>
 
+            <div class="field" id="deliveredBox" hidden>
+                <label for="actual_date_of_delivery">Actual date of delivery <b class="required">*</b></label>
+                <input type="date" id="actual_date_of_delivery" name="actual_date_of_delivery"
+                    value="{{ old('actual_date_of_delivery') }}" disabled>
+                @error('actual_date_of_delivery') <small class="err">{{ $message }}</small> @enderror
+            </div>
+
             <div class="field">
                 <label for="update3">Current status<b class="required">*</b> </label>
                 <textarea id="update3" name="update" rows="3" placeholder="e.g. Notice to proceed issued, delivery scheduled" required></textarea>
                 <input type="date" id="update_date3" name="status_date" required>
             </div>
+
+            
 
             <hr>
             <div class="sec-title">Documents <small id="fileCount3">0 files</small></div>

@@ -40,7 +40,7 @@ class DashboardController extends Controller
             'quarter'  => $request->query('quarter', 'all'),
         ];
 
-        $projects = (clone $scoped)->with(['status', 'division', 'latestUpdate'])
+        $projects = (clone $scoped)->with(['status','division','latestUpdate','procurementUnits.status','procurementUnits.updates',])
             ->visibleTo($user)
             ->when($filters['division'] !== 'all', fn ($q) => $q->where('division_id', $filters['division']))
             ->when($filters['fiscal']   !== 'all', fn ($q) => $q->where('fiscal_year', $filters['fiscal']))
@@ -55,11 +55,14 @@ class DashboardController extends Controller
         $cardRows        = DashboardStats::cardRows($projects, $deliveredId);
         $deliveries      = DashboardStats::deliveries($projects);
 
-        $byQuarter = $projects->whereNotNull('quarter')->groupBy('quarter')
-            ->map(fn ($g) => (object) [
-                'abc'      => $g->sum('approved_budget'),
-                'contract' => $g->where('contract_price', '>', 0)->sum('contract_price'),
-            ]);
+        $byQuarter = $projects->whereNotNull('quarter')
+        ->groupBy('quarter')
+        ->map(fn ($g) => (object) [
+            'abc' => $g->sum('approved_budget'),
+            'contract' => $g->sum(
+                fn ($p) => $p->procurementUnits->sum('contract_price')
+            ),
+        ]);
 
         $stageRows = $projects->map(fn ($p) => [
             'd' => $p->division_id, 'y' => $p->fiscal_year,
@@ -74,13 +77,15 @@ class DashboardController extends Controller
         //         'contract' => (float) $g->where('contract_price', '>', 0)->sum('contract_price'),
         //     ]));
 
-        $barRows = $projects->whereNotNull('quarter')->map(fn ($p) => [
-            'd'        => $p->division_id,
-            'y'        => $p->fiscal_year,
-            'q'        => $p->quarter,
-            'abc'      => (float) $p->approved_budget,
-            'contract' => $p->contract_price > 0 ? (float) $p->contract_price : 0,
-        ])->values();
+        $barRows = $projects->whereNotNull('quarter')
+        ->map(fn ($p) => [
+            'd' => $p->division_id,
+            'y' => $p->fiscal_year,
+            'q' => $p->quarter,
+            'abc' => (float) $p->approved_budget,
+            'contract' => (float) $p->procurementUnits->sum('contract_price'),
+        ])
+        ->values();
 
         return view('division.partials.dashboard', compact(
             'divisions', 'statuses', 'projects', 'stageCounts', 'stageRows',
