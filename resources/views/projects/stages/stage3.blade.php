@@ -92,8 +92,6 @@
                 <input type="date" id="update_date3" name="status_date" required>
             </div>
 
-            
-
             <hr>
             <div class="sec-title">Documents <small id="fileCount3">0 files</small></div>
             <p class="muted">Notice to proceed, etc.</p>

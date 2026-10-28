@@ -132,10 +132,12 @@
 
         <div class="drawer-foot">
             <button type="button" class="btn-sm v-remarks"><i class="bi bi-download"></i> Download</button>
-            <button type="button" id="vRemarks" class="btn-sm v-remarks"><i class="bi bi-pencil"></i> Add remarks</button>
-            @if(auth()->user()->role !== 'admin')
-                <button type="button" class="btn-primary btn-save" id="vUpdateBtn"><i class="bi bi-pencil"></i> Update project</button>
+             @if(auth()->user()->role !== 'admin')
+                <!-- <button type="button" class="btn-primary btn-save" id="vUpdateBtn"><i class="bi bi-pencil"></i> Update project</button> -->
+                <button type="button" id="vModify" class="btn-sm v-remarks"><i class="bi bi-diagram-2"></i>Modify project</button>
             @endif
+            <button type="button" id="vRemarks" class="btn-sm v-remarks"><i class="bi bi-pencil"></i> Add remarks</button>
+           
         </div>
     </div>
 </aside>

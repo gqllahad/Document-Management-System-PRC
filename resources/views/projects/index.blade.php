@@ -123,6 +123,9 @@
 <!-- stage 3 -->
  @include('projects.stages.stage3')
 
+ <!-- modify -->
+@include('projects.stages.modify-stage')
+
 
 <!-- review -->
 <dialog class="review" id="reviewModal">

@@ -2,6 +2,7 @@
     $full    = ($mode ?? 'dashboard') === 'full';
     $overdue = $deliveries->where('state', 'overdue')->count();
     $soon    = $deliveries->where('state', 'soon')->count();
+    $delivered = $deliveries->where('state', 'delivered')->count();
     $attn    = $overdue + $soon;
     $icons   = ['delivered' => 'check2', 'overdue' => 'exclamation-triangle', 'soon' => 'clock', 'ongoing' => 'clock'];
     $rows    = $full ? $deliveries : $deliveries->whereIn('state', ['overdue', 'soon']);
@@ -19,6 +20,7 @@
                 <button type="button" class="is-active" data-tab="all">All scheduled <em>{{ $deliveries->count() }}</em></button>
                 <button type="button" data-tab="overdue">Overdue <em>{{ $overdue }}</em></button>
                 <button type="button" data-tab="soon">Due soon <em>{{ $soon }}</em></button>
+                <button type="button" data-tab="delivered">Delivered <em>{{ $delivered }}</em></button>
             </div>
         @else
             <a href="{{ route('admin.tracking') }}" class="deliv-link">View all deliveries <i class="bi bi-arrow-right"></i></a>
@@ -37,11 +39,31 @@
         @foreach ($rows as $d)
             @php
                 $late = $d->actual && $d->actual->gt($d->deadline);
+
+                $lateDays = $d->actual
+                    ? (int) $d->deadline->diffInDays($d->actual, false)
+                    : 0;
+
+                $overdueDays = $d->deadline
+                    ? (int) $d->deadline->diffInDays(now()->startOfDay(), false)
+                    : 0;
+
                 [$sub, $subClass] = match ($d->state) {
-                    'overdue'   => ['Past deadline', 'is-overdue'],
-                    'soon'      => ['Due this week', 'is-soon'],
-                    'delivered' => [$late ? 'Delivered late' : 'Delivered on time', $late ? 'is-overdue' : 'is-ok'],
-                    default     => ['Within timeline', 'is-ok'],
+                    'overdue' => [
+                        $overdueDays . ' day' . ($overdueDays !== 1 ? 's' : '') . ' overdue',
+                        'is-overdue'
+                    ],
+
+                    'soon' => ['Due this week', 'is-soon'],
+
+                    'delivered' => [
+                        $late
+                            ? $lateDays . ' day' . ($lateDays !== 1 ? 's' : '') . ' late'
+                            : 'Delivered on time',
+                        $late ? 'is-overdue' : 'is-ok'
+                    ],
+
+                    default => ['Within timeline', 'is-ok'],
                 };
             @endphp
 

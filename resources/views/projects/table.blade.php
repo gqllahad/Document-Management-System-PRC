@@ -249,6 +249,8 @@
                                 data-code="PRJ-{{ $project->created_at->year }}-{{ str_pad($project->id, 3, '0', STR_PAD_LEFT) }}"
                                 data-created="{{ $project->created_at->format('M d, Y') }}"
                                 data-division="{{ $project->division->name ?? '' }}"
+                                data-division-id="{{ $project->division_id }}"
+                                data-quarter="{{ $project->quarter }}"
                                 data-status="{{ $project->status->name ?? '' }}"
                                 data-abc="{{ $project->approved_budget }}"
                                 data-price="{{ $project->contract_price }}"

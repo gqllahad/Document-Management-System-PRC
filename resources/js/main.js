@@ -834,7 +834,7 @@ toggle?.addEventListener('click', () => {
             document.getElementById('vBar').style.width =
                 (hasPrice && abc ? Math.min(total / abc * 100, 100) : 0) + '%';
 
-            set('vSaveLbl', over ? 'Over budget' : allPriced ? 'Savings' : 'Unallocated');
+            set('vSaveLbl', over ? 'Over budget' : allPriced ? 'Estimated savings' : 'Unallocated');
             set('vSaveAmt', hasPrice ? peso(Math.abs(gap)) : '—');
             set('vSavePct', hasPrice && abc ? `${(Math.abs(gap) / abc * 100).toFixed(1)}% of ABC` : '')
 
@@ -997,7 +997,103 @@ toggle?.addEventListener('click', () => {
                 };
             }
 
+
+
+            // modify
+            const vm = document.getElementById('vModify');
+            if (vm) {
+                vm.onclick = () => openModify({
+                    projectId: d.id,
+                    code: d.code,
+                    name: d.name,
+                    created: d.created,
+                    divisionId: d.divisionId,
+                    divisionName: d.division,
+                    quarter: d.quarter,
+                    abc: d.abc,
+                    price: d.price,
+                    winningBidder: d.winningBidder,
+                    statusName: d.status
+                });
+            }
+
             open(document.getElementById('viewDrawer'));
         };
     });
+
+
+    const mf = document.getElementById('modifyForm');
+
+        if (mf) {
+            const abc = mf.elements.abc;
+            const price = mf.elements.contract_price;
+            const bidderIn = mf.elements.winning_bidder;
+            const bidderTxt = document.getElementById('mBidder');
+            const bidderBtn = document.getElementById('mBidderBtn');
+
+            const peso = n => '₱' + n.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+
+            const calc = () => {
+                const a = parseFloat(abc.value) || 0;
+                const p = parseFloat(price.value) || 0;
+                const pct = a ? (p / a) * 100 : 0;
+                const save = a - p;
+
+                set('mUtilPct', pct.toFixed(1));
+                document.getElementById('mUtilBar').style.width = Math.min(pct, 100) + '%';
+
+                const sv = document.getElementById('mSavings');
+                sv.textContent = peso(save);
+                sv.classList.toggle('neg', save < 0);
+                set('mSavingsPct', a ? `${((save / a) * 100).toFixed(1)}% OF ABC` : '');
+            };
+
+            [abc, price].forEach(el => el.addEventListener('input', calc));
+
+            bidderBtn.onclick = () => {
+                const editing = bidderIn.hidden;
+                bidderIn.hidden = !editing;
+                bidderTxt.hidden = editing;
+                bidderBtn.textContent = editing ? 'Done' : 'Change';
+                if (editing) bidderIn.focus();
+                else bidderTxt.textContent = bidderIn.value;
+            };
+
+            document.getElementById('mDraftBtn').onclick = () => { mf.elements.save_mode.value = 'draft'; };
+            mf.querySelector('.btn-save').onclick = () => { mf.elements.save_mode.value = 'final'; };
+
+            window.openModify = (d, btn) => {
+                mf.reset();
+
+                if (!d.projectId) {
+                    toast('Project not found.', 'warning');
+                    return;
+                }
+
+                mf.action = `/projects/${d.projectId}`;
+
+                set('mTitle', d.name);
+                set('mCode', d.code);
+                set('mId', `ID: ${d.code}`);
+                set('mCreated', d.created);
+                set('mStatus', d.statusName);
+                set('mDivChip', d.divisionName);
+                set('mQtrChip', d.quarter);
+                set('mBidder', d.winningBidder);
+
+                mf.elements.name.value = d.name || '';
+                mf.elements.division_id.value = d.divisionId || '';
+                mf.elements.quarter.value = d.quarter || '';
+                abc.value = d.abc || '';
+                price.value = d.price || '';
+                bidderIn.value = d.winningBidder || '';
+                bidderIn.hidden = true;
+                bidderTxt.hidden = false;
+                bidderBtn.textContent = 'Change';
+
+                calc();
+                closeAll();
+                open(document.getElementById('modifyDrawer'));
+            };
+        };
 })();

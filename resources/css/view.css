@@ -934,3 +934,64 @@
         opacity: 0.35;
     }
 }
+
+
+.btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .4rem .8rem;
+  font-size: .85rem;
+  font-weight: 500;
+  color: #374151;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .2s, border-color .2s, color .2s, box-shadow .2s, transform .15s;
+}
+
+.btn-sm i {
+  display: inline-block;
+  transition: transform .25s ease;
+}
+
+.btn-sm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .08);
+}
+
+.btn-sm:active {
+  transform: translateY(0) scale(.97);
+  box-shadow: none;
+}
+
+.btn-sm:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.btn-sm:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+#vDownload:hover { color: #2563eb; border-color: #2563eb; background: #eff6ff; }
+#vDownload:hover i { animation: dl-bob .6s ease infinite; }
+
+#vRemarks:hover { color: #d97706; border-color: #d97706; background: #fffbeb; }
+#vRemarks:hover i { transform: rotate(-15deg) scale(1.1); }
+
+#vModify:hover { color: #059669; border-color: #059669; background: #ecfdf5; }
+#vModify:hover i { transform: rotate(90deg); }
+
+@keyframes dl-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-sm, .btn-sm i { transition: none; animation: none !important; }
+}
