@@ -72,11 +72,13 @@
 
             <div class="field">
                 <label for="status_id3">Update status <b class="required">*</b></label>
-                <select id="status_id3" name="status_id" required>
+                <select id="status_id3" name="status_id" required
+                        data-flow="{{ json_encode(\App\Services\StatusFlow::FLOW) }}">
                     @foreach ($statuses as $s)
                         <option value="{{ $s->id }}">{{ $s->name }}</option>
                     @endforeach
                 </select>
+                <small class="muted" id="statusHint3"></small>
             </div>
 
             <div class="field" id="deliveredBox" hidden>

@@ -10,9 +10,10 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Documents;
 use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use App\Services\StatusFlow;
 use Illuminate\Support\Facades\DB;
 use App\Models\ProcurementUnit;
+use Illuminate\Validation\ValidationException;
 
 class ProjectController extends Controller
 {
@@ -54,6 +55,7 @@ class ProjectController extends Controller
                 'updates.status',
                 'procurementUnits.status',
                 'procurementUnits.items',
+                'procurementUnits.updates.status',
             ])
             ->latest()
             ->get();
@@ -108,9 +110,11 @@ class ProjectController extends Controller
                 'status',
                 'division',
                 'latestUpdate',
+                'documents',
                 'updates.status',
                 'procurementUnits.status',
                 'procurementUnits.items',
+                'procurementUnits.updates.status',
             ])
             ->latest()
             ->get();
@@ -118,11 +122,13 @@ class ProjectController extends Controller
         $statuses  = Status::orderBy('sort_order')->get();
         $divisions = Division::orderByRaw("CASE WHEN name = 'ICTS-OD' THEN 0 ELSE 1 END")->orderBy('name')->get();
 
+        $hasContract = fn ($q) => $q->whereNotNull('contract_number');
+
         $counts = [
             'all'      => (clone $filtered)->count(),
-            'pending'  => (clone $filtered)->whereNull('contract_number')->count(),
-            'recorded' => (clone $filtered)->whereNotNull('contract_number')->count(),
-        ];
+            'pending'  => (clone $filtered)->whereDoesntHave('procurementUnits', $hasContract)->count(),
+            'recorded' => (clone $filtered)->whereHas('procurementUnits', $hasContract)->count(),
+        ];  
 
         return view('projects.index', compact('projects', 'statuses', 'divisions', 'counts', 'quarters', 'fiscalYears'));
     }
@@ -275,6 +281,17 @@ class ProjectController extends Controller
                                         . number_format($remainingABC, 2) . '.',
         ]);
 
+        $status  = Status::findOrFail($data['status_id']);
+        $allowed = StatusFlow::allowed(
+            $procurementUnit->status?->name,
+            filled($data['contract_number'] ?? null),
+            $project->documents()->exists() || $request->hasFile('documents'),
+        );
+
+        if (! in_array($status->name, $allowed, true)) {
+            throw ValidationException::withMessages(['status_id' => 'That status is not available yet.']);
+        }
+
         DB::transaction(function () use ($request, $data, $procurementUnit, $project) {
             $procurementUnit->update([
                 'contract_number' => $data['contract_number'] ?? null,
@@ -335,7 +352,9 @@ class ProjectController extends Controller
             'status_date' => 'required|date',
             'documents' => 'nullable|array',
             'documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
-            'actual_date_of_delivery' => [Rule::requiredIf(fn () => $deliveredId->contains((int) $request->status_id)),'nullable', 'date', 'after_or_equal:ntp_date',],
+            // 'actual_date_of_delivery' => [Rule::requiredIf(fn () => $deliveredId->contains((int) $request->status_id)),'nullable', 'date', 'after_or_equal:ntp_date',],
+            // 'actual_date_of_delivery' => $data['actual_date_of_delivery'] ?? $procurementUnit->actual_date_of_delivery,
+            'actual_date_of_delivery' => $data['actual_date_of_delivery'] ?? $procurementUnit->actual_date_of_delivery,
         ]);
 
         if (
@@ -343,10 +362,19 @@ class ProjectController extends Controller
             $data['ntp_date'] < $procurementUnit->contract_date->format('Y-m-d')
         ) {
             return back()
-                ->withErrors([
-                    'ntp_date' => 'The NTP date must be on or after the contract date.',
-                ])
+                ->withErrors(['ntp_date' => 'The NTP date must be on or after the contract date.'])
                 ->withInput();
+        }
+
+        $status  = Status::findOrFail($data['status_id']);
+        $allowed = StatusFlow::allowedSchedule(
+            $procurementUnit->status?->name,
+            $project->documents()->exists() || $request->hasFile('documents'),
+            filled($data['ntp_date']) && filled($data['delivery_period']),
+        );
+
+        if (! in_array($status->name, $allowed, true)) {
+            throw ValidationException::withMessages(['status_id' => 'That status is not available yet.']);
         }
 
         DB::transaction(function () use ($request, $data, $procurementUnit, $project) {

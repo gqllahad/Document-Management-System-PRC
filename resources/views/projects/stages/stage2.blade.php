@@ -4,7 +4,7 @@
 
         <div class="drawer-head">
             <div>
-                <h3>Project continuation</h3>
+                <h3>Project Continuation</h3>
                 <p>Add contract details to your existing project</p>
             </div>
             <button type="button" class="drawer-close" data-drawer-close aria-label="Close"><i class="bi bi-x-lg"></i></button>
@@ -20,7 +20,7 @@
                 <strong id="cName"></strong>
                 <span><span id="cCode"></span> · Created <span id="cCreated"></span></span>
                 <div class="recorded-abc">
-                    <div><small>Approved budget (ABC)</small><small>Approved Budget for the Contract</small></div>
+                    <div><small>Approved Budget (ABC)</small><small>Approved Budget for the Contract</small></div>
                     <b>₱<span id="cAbc"></span></b>
                 </div>
             </div>
@@ -28,7 +28,7 @@
             <hr>
 
             <div class="field">
-                <label for="cUnit">Procurement unit <b class="required">*</b></label>
+                <label for="cUnit">Procurement Unit <b class="required">*</b></label>
                 <select id="cUnit" name="procurement_unit_id" required>
                     <option value="">Select procurement unit</option>
                 </select>
@@ -37,18 +37,18 @@
                 </small>
             </div>
 
-            <div class="sec-title">Contract details <small class="tag-warn" id="contractTag">To be completed</small>
+            <div class="sec-title">Contract Details <small class="tag-warn" id="contractTag">To be completed</small>
                 <button type="button" class="link-toggle" id="unlockBtn" hidden>Edit</button>
             </div>
 
             <div class="field">
-                <label for="cContract">Contract number </label>
+                <label for="cContract">Contract Number </label>
                 <input type="text" id="cContract" name="contract_number" placeholder="Enter contract number..">
                 <small class="err" id="contractErr" hidden></small>
             </div>
 
             <div class="field">
-                <label for="contract_price">Contract price </label>
+                <label for="contract_price">Contract Price </label>
                 <div class="input-prefix">
                     <span>₱</span>
                     <input type="text" id="contract_price" name="contract_price" placeholder="0.00" inputmode="decimal">
@@ -58,12 +58,12 @@
             </div>
 
             <div class="field">
-                <label for="winning_bidder">Winning bidder </label>
+                <label for="winning_bidder">Winning Bidder </label>
                 <input type="text" id="winning_bidder" name="winning_bidder" placeholder="Enter winning bidder.." >
             </div>
 
             <div class="field">
-                <label for="contract_date">Contract date </label>
+                <label for="contract_date">Contract Date </label>
                 <input type="date" id="contract_date" name="contract_date" >
             </div>
 
@@ -73,16 +73,18 @@
             <p class="muted">Keep the project status current for your team.</p>
 
             <div class="field">
-                <label for="status_id">Update status <b class="required">*</b></label>
-                <select id="status_id" name="status_id" required>
+                <label for="status_id">Update Status <b class="required">*</b></label>
+                <select id="status_id" name="status_id" required
+                        data-flow="{{ json_encode(\App\Services\StatusFlow::FLOW) }}">
                     @foreach ($statuses as $s)
                         <option value="{{ $s->id }}">{{ $s->name }}</option>
                     @endforeach
                 </select>
+                <small class="muted" id="statusHint"></small>
             </div>
             
             <div class="field">
-                <label for="update">Current status <b class="required">*</b></label>
+                <label for="update">Current Status <b class="required">*</b></label>
                 <textarea id="update" name="update" rows="3" placeholder="e.g. Notice to proceed issued, delivery scheduled" required></textarea>
                 <input type="date" id="update_date" name="status_date" required>
             </div>

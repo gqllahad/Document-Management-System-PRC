@@ -1,19 +1,11 @@
+
+
+
 <thead>
                 <tr>
                     <th><button type="button" class="prj-sort">Project <i class="bi bi-arrow-down-up"></i></button></th>
-                <!-- @if ($isAdmin) <th>Division</th> @endif -->
                     <th class="num">Budget & Contract</th>
-
-                <!-- @if (auth()->user()->role === 'admin')
-                    <th class="num">Contract P.</th>
-                    <th class="num">Savings</th> 
-                @endif -->
                     <th class="col-status"><button type="button" class="current-sort">Current Status <i class="bi bi-arrow-down-up"></i></button></th>
-                <!-- @if (auth()->user()->role === 'admin')
-                    <th>Contract No.</th>
-                @else 
-                    <th>Project Type</th>
-                @endif -->
                     <th>Quarter</th>
                     <th>Update</th>
                     <th>Action</th>
@@ -21,8 +13,9 @@
             </thead>
             <tbody>
                 @forelse ($projects as $project)
+                    @php extract(\App\Services\ProjectSummary::make($project)); @endphp
                     
-                    @php
+                    <!-- @php
                         $code = 'PRJ-' . $project->created_at->year . '-' . str_pad($project->id, 3, '0', STR_PAD_LEFT);
                         $u = $project->latestUpdate;
 
@@ -58,26 +51,28 @@
                             ->values();
                     @endphp
 
-                    <tr data-contract="{{ $project->contract_number ? 'recorded' : 'pending' }}"
+                    @php
+                       
+                        $totalUnits = $units->count();
+                        $contractedUnits = $units->filter(
+                            fn ($unit) => filled($unit->contract_number)
+                        )->count();
+                        $pendingUnits = $totalUnits - $contractedUnits;
+                        
+                    @endphp -->
+
+                    <tr data-contract="{{ $contractedUnits > 0 ? 'recorded' : 'pending' }}"
                         data-division="{{ $project->division_id }}"
                         data-type="{{ $project->source_funds }}"
                         data-quarter="{{ $filterQuarters->implode(',') }}"
-                        data-fiscal-year="{{ $filterYears->implode(',') }}" data-updated="{{ data_get($latestUnitUpdate, 'update.status_date')?->format('Y-m-d') }}">
+                        data-fiscal-year="{{ $filterYears->implode(',') }}" data-updated="{{ $updatedDate }}">
 
                         <td>
                             <div class="p-name">{{ $project->project_name }}</div>
                             <div class="p-meta">
                                 <span>{{ $code }}</span>
 
-                                @php
-                                    $units = $project->procurementUnits;
-
-                                    $totalUnits = $units->count();
-                                    $contractedUnits = $units->filter(
-                                        fn ($unit) => filled($unit->contract_number)
-                                    )->count();
-                                    $pendingUnits = $totalUnits - $contractedUnits;
-                                @endphp
+                              
 
                                 @if ($totalUnits > 1)
                                     <span class="pill pill-green">
@@ -124,43 +119,24 @@
                                     <span>{{ $project->source_funds }}</span>
                                 @endif
                             </div>
-                            <!-- <small class="tb_small">PRJ-{{ $project->created_at->year }}-{{ str_pad($project->id, 3, '0', STR_PAD_LEFT) }}</small> -->
                         </td>
-                    <!-- @if (auth()->user()->role === 'admin')
-                            <td><span class="pill pill-div">{{ Str::upper($project->division->name) }}</span></td>
-                    @endif -->
 
                         <td>
-                            <div class="amt"><span>ABC</span><strong>₱{{ number_format($project->approved_budget, 2) }}</strong></div>
-                            <div class="amt">
+                           <div class="amt">
                                 <span>Contract</span>
-                                @if ($project->contract_price !== null)
-                                    <strong>₱{{ number_format($project->contract_price, 2) }}</strong>
+                                @if ($contractPrice !== null)
+                                    <strong>₱{{ number_format($contractPrice, 2) }}</strong>
                                 @else
                                     <em>Pending</em>
                                 @endif
                             </div>
-                            @if ($project->savings !== null)
-                                <div class="amt savings"><span>Savings</span><strong>₱{{ number_format($project->savings, 2) }}</strong></div>
+                            @if ($savings !== null)
+                                <div class="amt savings"><span>Savings</span><strong>₱{{ number_format($savings, 2) }}</strong></div>
+                                @if ($savingsTransferable)
+                                    <span class="pill pill-green"><i class="bi bi-arrow-left-right"></i> Transferable</span>
+                                @endif
                             @endif
                         </td>
-                        <!-- <td class="num">₱{{ number_format($project->approved_budget, 2) }}</td>
-                        <td class="num {{ $project->contract_price === null ? 'text-muted' : '' }}">{{ $project->contract_price !== null ? '₱' . number_format($project->contract_price, 2) : 'Pending' }}</td>
-                        <td class="num">{{ $project->savings !== null ? '₱' . number_format($project->savings, 2) : '—' }}</td> -->
-
-
-                       <!-- <td class="update-cell col-status">
-                            @php $u = $project->latestUpdate; @endphp
-                            @if ($u)
-                                @if ($u->created_at->gt(now()->subDays(2)))
-                                    <span class="badge-new">New</span>
-                                @endif
-                                <span class="update-text" title="{{ $u->update }}">{{ $u->update }}</span>
-                                <small class="update-date">{{ $u->status_date->format('m/d/Y') }}</small>
-                            @else
-                                <span class="text-muted">No updates yet</span>
-                            @endif
-                        </td> -->
 
                         <td class="update-cell col-status">
                             @if ($latestUnitUpdate)
@@ -173,9 +149,7 @@
                                         @endif
                                     </span>
                                 @endif
-
                                 
-
                                 <span
                                     class="update-text"
                                     title="{{ $latestUnitUpdate['update']->update }}"
@@ -191,53 +165,13 @@
                             @endif
                         </td>
 
-
-                    <!-- @if (auth()->user()->role === 'admin')
-                        <td>{{ $project->contract_number? '' . $project->contract_number : '—' }}</td>
-                        
-                    @else
-                        <td>{{ $project->contract_date?->format('M d, Y') ?? '—' }}</td>
-                        <td>{{ $project->project_type? '' . $project->project_type : '—' }}</td>
-                    @endif -->
-
                         <td>
-                        @php
-                            $units = $project->procurementUnits;
-
-                            $quarters = $units
-                                ->map(function ($unit) use ($project) {
-                                    $quarter = $unit->quarter ?? $project->quarter;
-
-                                    $year = $project->fiscal_year
-                                        ?? $unit->contract_date?->year
-                                        ?? $project->contract_date?->year;
-
-                                    return collect([$quarter, $year])
-                                        ->filter(fn ($value) => filled($value))
-                                        ->implode(' · ');
-                                })
-                                ->filter()
-                                ->unique()
-                                ->values();
-
-                            if ($quarters->isEmpty()) {
-                                $fallback = collect([
-                                    $project->quarter,
-                                    $project->fiscal_year ?? $project->contract_date?->year,
-                                ])->filter()->implode(' · ');
-
-                                if ($fallback !== '') {
-                                    $quarters->push($fallback);
-                                }
-                            }
-                        @endphp
-
-                        @forelse ($quarters as $quarter)
-                            <div>{{ $quarter }}</div>
-                        @empty
-                            —
-                        @endforelse
-                    </td>
+                            @forelse ($periods as $period)
+                                <div>{{ $period }}</div>
+                            @empty
+                                —
+                            @endforelse
+                        </td>
 
                         <td><span class="pill pill-role">{{ $project->status->name ?? '—' }}</span></td>
                        
@@ -324,8 +258,12 @@
                                 data-contract-date="{{ $project->contract_date?->format('Y-m-d') }}"
                                 data-winning-bidder="{{ $project->winning_bidder }}"
 
-                                
-                                data-units="{{ $project->procurementUnits->map(fn ($unit) => [
+                                data-has-docs="{{ $hasDocs ? 1 : 0 }}"
+                                data-units="{{ $unitsEdit }}">
+                                <i class="bi bi-pencil-square"></i> Update
+                            </button>
+
+                            <!-- data-units="{{ $project->procurementUnits->map(fn ($unit) => [
                                     'id' => $unit->id,
                                     'name' => $unit->unit_name,
                                     'contractNumber' => $unit->contract_number,
@@ -334,11 +272,9 @@
                                     'winningBidder' => $unit->winning_bidder,
                                     'status' => $unit->status->name ?? '—',
                                     'status_date' => $unit->status_date?->format('Y-m-d'),
-                                ])->toJson() }}">
-                                <i class="bi bi-pencil-square"></i> Update
-                            </button>
+                                ])->toJson() }}" -->
                         
-                                @php $scheduled = $project->procurementUnits->filter(fn ($u) => $u->contract_number); @endphp
+                                <!-- @php $scheduled = $project->procurementUnits->filter(fn ($u) => $u->contract_number); @endphp -->
                                  @if ($scheduled->isNotEmpty())
                                     <div class="menu">
                                         <button type="button" class="btn-sm menu-toggle">
@@ -365,7 +301,10 @@
                                                     data-ntp="{{ $unit->ntp_date?->format('Y-m-d') }}"
                                                     data-winning-bidder="{{ $unit->winning_bidder }}"
                                                     data-delivery-period="{{ $unit->delivery_period }}"
-                                                    data-status-id="{{ $unit->status_id }}">
+                                                    data-status-id="{{ $unit->status_id }}"
+                                                    data-status-name="{{ $unit->status?->name }}"
+                                                    data-has-docs="{{ $hasDocs ? 1 : 0 }}"
+                                                    data-delivered-date="{{ $unit->actual_date_of_delivery?->format('Y-m-d') }}">
                                                     <strong>{{ $unit->unit_name }}</strong>
                                                     <small>{{ $unit->contract_number }}</small>
                                                 </button>

@@ -38,7 +38,7 @@ class Project extends Model
 
     public const UPDATES = ['installed/renewed', 'delivered', 'successful_bid', 'cancelled', 'pending', 'obligated'];
     public const PROJECT_TYPES = ['Current', 'Supplemental'];
-    public const SOURCE_FUNDS = ['MMOE - Current Fund','MMOE - Continuing Fund', 'Capital Outlay - Current Fund', 'Capital Outlay - Continuing Fund'];
+    public const SOURCE_FUNDS = ['MOOE - Current Fund','MOOE - Continuing Fund', 'Capital Outlay - Current Fund', 'Capital Outlay - Continuing Fund'];
 
     // public const EXPENSES_CLASSES = ['MOOE','CO',];
 
@@ -71,6 +71,22 @@ class Project extends Model
         }
 
         return max(0, (float) $this->approved_budget - (float) $this->contract_price);
+    }
+
+    public function getUnitsContractPriceAttribute()
+    {
+        $priced = $this->procurementUnits->whereNotNull('contract_price');
+        return $priced->isNotEmpty() ? $priced->sum('contract_price') : $this->contract_price;
+    }
+
+    public function getUnitsSavingsAttribute()
+    {
+        $units = $this->procurementUnits;
+        $priced = $units->whereNotNull('contract_price');
+
+        return $units->isNotEmpty() && $priced->count() === $units->count()
+            ? $this->approved_budget - $priced->sum('contract_price')
+            : $this->savings;
     }
 
     // date retrieveal

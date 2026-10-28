@@ -13,8 +13,7 @@
 <div class="page-head">
 
     <div>
-        <nav class="crumbs">Procurement <i class="bi bi-chevron-right"></i> <span>Projects</span></nav>
-        <h2>Procurement Projects</h2> 
+        <h2>Projects / Items</h2> 
         <!-- <span class="count">{{ $projects->count() }}</span> -->
         <p>{{ auth()->user()->role === 'admin' ? 'All divisions' : Str::upper(auth()->user()->division->name) }}</p>
     </div>
@@ -33,23 +32,28 @@
 <div class="card table-card">
     <div class="table-head">
         <div>
-            <h3>Procurement Projects</h3>
-             <small>Manage all procurement projects</small>
+            <h3>Projects / Items</h3>
+             <small>Manage All Projects / Items</small>
         </div>
         
         <div class="table-tools">
 
             <div class="tools-top">
                 @if ($isAdmin)
-                    <select id="divisionFilter" class="filter-select">
-                        <option value="all">All divisions</option>
+                    <!-- <select id="divisionFilter" class="filter-select">
+                        <option value="all">All Divisions</option>
                         @foreach ($divisions as $d)
                             <option value="{{ $d->id }}">{{ $d->name }}</option>
                         @endforeach
-                    </select>
+                    </select> -->
+                    @include('projects.filter.adminFilter')
+                @else
+
+                        @include('projects.filter.userFilter')
+
                 @endif
 
-                <select id="fiscalFilter" class="filter-select">
+                <!-- <select id="fiscalFilter" class="filter-select">
                     <option value="all">All Fiscal Years</option>
                     @foreach ($fiscalYears as $fy)
                         <option value="{{ $fy }}">{{ $fy }}</option>
@@ -57,19 +61,19 @@
                 </select>
 
                 <select id="quarterFilter" class="filter-select">
-                    <option value="all">All quarters</option>
+                    <option value="all">All Quarters</option>
                     @foreach ($quarters as $qt)
                         <option value="{{ $qt }}">{{ $qt }}</option>
                     @endforeach
                 </select>
 
                 <select id="typeFilter" class="filter-select">
-                    <option value="all">All source funds</option>
+                    <option value="all">All Funding Source</option>
                     <option value="MMOE - Current Fund">MMOE - Current F.</option>
                     <option value="MMOE - Continuing Fund">MMOE - Continuing F.</option>
                     <option value="Capital Outlay - Current Fund">Capital Outlay - Current F.</option>
                     <option value="Capital Outlay - Continuing Fund">Capital Outlay - Continuing F.</option>
-                </select>
+                </select> -->
                 
 
             </div>
@@ -83,18 +87,7 @@
             
     </div>
 
-    <div class="tools-bottom">
-        <div class="filter-buttons">
-            <button type="button" class="active" data-filter="all">All projects <span>{{ $counts['all'] }}</span></button>
-            <button type="button" data-filter="pending">Pending contract <span>{{ $counts['pending'] }}</span></button>
-            <button type="button" data-filter="recorded">Contract recorded <span>{{ $counts['recorded'] }}</span></button>
-        </div>
-
-        <div class="search">
-            <i class="bi bi-search"></i>
-            <input type="search" id="projectSearch" placeholder="Search project..">
-        </div>
-    </div>
+    @include('projects.filter.defaultFilter')
 
     <div class="table-wrap">
         <table class="table" id="projectTable">

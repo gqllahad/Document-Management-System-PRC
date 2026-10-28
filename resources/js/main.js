@@ -102,6 +102,14 @@ toggle?.addEventListener('click', () => {
         let maxPrice = Infinity;
         const q = form.elements.quarter;
         const contractDate = form.elements.contract_date;
+        const statusSel = form.elements.status_id;
+        const statusHint = document.getElementById('statusHint');
+        const flow = JSON.parse(statusSel.dataset.flow);
+        const allStatuses = [...statusSel.options].map(o => ({ id: o.value, name: o.textContent.trim() }));
+        const hints = {
+            'Contract Signed': 'Add a contract number to unlock Contract Signed.',
+            'Obligated': 'Upload a supporting document to unlock Obligated.',
+        };
 
         document.querySelectorAll('[data-continue]').forEach(b => {
             b.onclick = () => {
@@ -149,6 +157,42 @@ toggle?.addEventListener('click', () => {
                 tag.classList.toggle('tag-warn', !ok);
             };
 
+            const hasDocs = d.hasDocs === '1';
+
+            const renderStatuses = reset => {
+            const current = selectedUnit?.status || flow[0];
+            const i = Math.max(0, flow.indexOf(current));
+            const next = flow[i + 1];
+            const unlocked = {
+                'Contract Signed': form.elements.contract_number.value.trim() !== '',
+                'Obligated': hasDocs || document.getElementById('documents').files.length > 0,
+            };
+            const open = !!next && (unlocked[next] ?? true);
+
+            let allowed;
+            if (['Cancelled', 'Submitted DV'].includes(current)) allowed = [current];
+            else if (current === 'Failed Bidding') allowed = [current, flow[0], 'Cancelled'];
+            else allowed = [flow[i], open && next, i === 0 && 'Failed Bidding', 'Cancelled'];
+
+            const base = allowed[0];
+            const prev = statusSel.value;
+
+            statusSel.innerHTML = '';
+            allStatuses
+                .filter(s => allowed.includes(s.name))
+                .forEach(s => statusSel.add(new Option(s.name, s.id)));
+
+            statusSel.value = !reset && [...statusSel.options].some(o => o.value === prev)
+                ? prev
+                : allStatuses.find(s => s.name === base)?.id;
+
+            statusHint.textContent = next && !open ? hints[next] : '';
+        };
+
+            form.oninput = form.onchange = e => {
+                if (['contract_number', 'documents[]'].includes(e.target.name)) renderStatuses();
+            };
+
             const loadUnit = () => {
                 selectedUnit = units.find(
                     unit => String(unit.id) === unitSelect.value
@@ -194,9 +238,7 @@ toggle?.addEventListener('click', () => {
                     el.classList.toggle('locked', !!value);
                 });
 
-                if (selectedUnit.status) {
-                    form.elements.status_id.value = selectedUnit.status;
-                }
+                renderStatuses(true);
 
                 editing = false;
 
@@ -320,9 +362,12 @@ toggle?.addEventListener('click', () => {
                     quarter: d.quarter,
                     winningBidder: selectedUnit.winningBidder,
                     price: selectedUnit.price,
-                    statusId: selectedUnit.status,
+                    // statusId: selectedUnit.status,
+                    statusName: selectedUnit.status,
+                    hasDocs: hasDocs,
                     ntp: selectedUnit.ntpDate,
-                    deliveryPeriod: selectedUnit.deliveryPeriod
+                    deliveryPeriod: selectedUnit.deliveryPeriod,
+                    deliveredDate: selectedUnit.actualDelivery,
                 }, b);
             };
 
@@ -336,9 +381,9 @@ toggle?.addEventListener('click', () => {
 
             maxPrice = parseFloat(String(d.abc).replace(/,/g, ''));
 
-            if (form.status_id && d.status) {
-                form.status_id.value = d.status;
-            }
+            // if (form.status_id && d.status) {
+            //     form.status_id.value = d.status;
+            // }
 
             open(document.getElementById('continueDrawer'));
             };   
@@ -414,9 +459,55 @@ toggle?.addEventListener('click', () => {
             delBox.hidden = !isDelivered;
             delInput.disabled = !isDelivered;
             delInput.required = isDelivered;
-            if (!isDelivered) delInput.value = '';
-            else delInput.min = ntp.value || '';
+            // if (!isDelivered) delInput.value = '';
+            // else delInput.min = ntp.value || '';
+            if (!isDelivered && !delInput.readOnly) delInput.value = '';
+            else if (isDelivered) delInput.min = ntp.value || '';
         };
+
+        const docs3 = document.getElementById('documents3');
+        const hint3 = document.getElementById('statusHint3');
+        const flow = JSON.parse(statusSel.dataset.flow);
+        const allStatuses = [...statusSel.options].map(o => ({ id: o.value, name: o.textContent.trim() }));
+        let ctx = { status: '', hasDocs: false };
+
+        const renderStatuses = reset => {
+            const current = ctx.status || flow[0];
+            const i = Math.max(0, flow.indexOf(current));
+            const hasDoc = ctx.hasDocs || docs3.files.length > 0;
+            const scheduled = !!(ntp.value && days.value);
+
+            let allowed;
+            if (['Cancelled', 'Submitted DV'].includes(current)) {
+                allowed = [current];
+            } else {
+                allowed = [current, ...flow.slice(i + 1).filter(s =>
+                    s === 'Obligated' ? hasDoc
+                    : ['Installed/Renewed', 'Delivered'].includes(s) ? scheduled
+                    : s === flow[i + 1]
+                ), 'Cancelled'];
+            }
+
+            const prev = statusSel.value;
+            statusSel.innerHTML = '';
+            allStatuses
+                .filter(s => allowed.includes(s.name))
+                .forEach(s => statusSel.add(new Option(s.name, s.id)));
+
+            statusSel.value = !reset && [...statusSel.options].some(o => o.value === prev)
+                ? prev
+                : allStatuses.find(s => s.name === current)?.id;
+
+            const hints = [];
+            if (!hasDoc && current !== 'Delivered') hints.push('Upload a document to unlock Obligated.');
+            if (!scheduled && current !== 'Delivered') hints.push('Fill NTP date and delivery period to unlock Installed/Delivered.');
+            hint3.textContent = hints.join(' ');
+            syncDelivered();
+        };
+
+        [ntp, days].forEach(el => el.addEventListener('input', () => renderStatuses()));
+
+        docs3.addEventListener('change', () => renderStatuses());
 
         statusSel.addEventListener('change', syncDelivered);
         ntp.addEventListener('input', syncDelivered);
@@ -437,7 +528,7 @@ toggle?.addEventListener('click', () => {
         // lock
         const unlock = document.getElementById('ntpUnlockBtn');
         const tag = document.getElementById('ntpTag');
-        let saved = { ntp: '', days: '' };
+        let saved = { ntp: '', days: '', delivered: '' };
         let editing = false;
 
         const setTag = (text, ok) => {
@@ -450,6 +541,7 @@ toggle?.addEventListener('click', () => {
             editing = false;
             ntp.value = saved.ntp;
             days.value = saved.days;
+            delInput.value = saved.delivered;
             expected();
 
             const done = !!(saved.ntp && saved.days);
@@ -458,6 +550,9 @@ toggle?.addEventListener('click', () => {
                 el.classList.toggle('locked', done);
             });
 
+            delInput.readOnly = !!saved.delivered;
+            delInput.classList.toggle('locked', !!saved.delivered);
+
             setTag(done ? 'Recorded' : 'To be completed', done);
             unlock.textContent = 'Edit';
             unlock.hidden = !done;
@@ -465,7 +560,7 @@ toggle?.addEventListener('click', () => {
 
         const edit = () => {
             editing = true;
-            [ntp, days].forEach(el => {
+            [ntp, days, delInput].forEach(el => {
                 el.readOnly = false;
                 el.classList.remove('locked');
             });
@@ -500,15 +595,24 @@ toggle?.addEventListener('click', () => {
             set('nWinningBidder', d.winningBidder);
             set('nPrice', d.price ? Number(d.price).toLocaleString('en-PH', { minimumFractionDigits: 2 }) : '');
 
-            s3.elements.status_id.value = d.statusId || d.status || '';
+            // s3.elements.status_id.value = d.statusId || d.status || '';
+
+            ctx = { status: d.statusName || '', hasDocs: d.hasDocs === '1' || d.hasDocs === true };
 
             ntp.min = d.contractDate || '';
+
+            delInput.value = d.deliveredDate || '';
+            delInput.readOnly = !!d.deliveredDate;
+            delInput.classList.toggle('locked', !!d.deliveredDate);
+
             saved = {
                 ntp: d.ntp || '',
-                days: d.deliveryPeriod || ''
+                days: d.deliveryPeriod || '',
+                delivered: d.deliveredDate || ''
             };
 
             lock();
+            renderStatuses(true);
 
             closeAll();
             open(document.getElementById('ntpDrawer'));
@@ -527,10 +631,10 @@ toggle?.addEventListener('click', () => {
             };
         });
 
-        document.getElementById('documents3').onchange = e => {
+        document.getElementById('documents3').addEventListener('change', e => {
             const n = e.target.files.length;
             set('fileCount3', `${n} file${n === 1 ? '' : 's'}`);
-        };
+        });
     }
 
     // view
@@ -542,7 +646,6 @@ toggle?.addEventListener('click', () => {
         el.classList.toggle('empty', !v);
     };
 
-
     const peso = n => '₱' + Number(n).toLocaleString('en-PH', { minimumFractionDigits: 2 });
     const kb = b => b == null ? '' : b < 1048576 ? Math.round(b / 1024) + ' KB' : (b / 1048576).toFixed(1) + ' MB';
 
@@ -551,10 +654,12 @@ toggle?.addEventListener('click', () => {
 
     const fmtDate = x => x.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' });
 
+    const LEAD_DAYS = 3; //indicator for the actual_date_of_deliverty bro
+
     function deadlineInfo(u) {
         if (!u.ntp_date || !u.delivery_period) return null;
         const end = new Date(u.ntp_date);
-        end.setDate(end.getDate() + u.delivery_period);
+        end.setDate(end.getDate() + Number(u.delivery_period));
 
         if (u.actual_delivery) {
             const late = Math.round((new Date(u.actual_delivery) - end) / 864e5);
@@ -563,7 +668,7 @@ toggle?.addEventListener('click', () => {
         const today = new Date(); today.setHours(0, 0, 0, 0);
         const left = Math.round((end - today) / 864e5);
         if (left < 0) return { end, state: 'late', text: `${-left}d overdue` };
-        return { end, state: left <= 7 ? 'warn' : 'ok', text: `${left}d remaining` };
+        return { end, state: left <= LEAD_DAYS ? 'warn' : 'ok', text: `${left}d remaining` };
     }
 
     function renderUnits(units) {
