@@ -712,6 +712,7 @@
     padding: 14px 16px;
     background: #eaf1fd;
     border-left: 3px solid #2563eb;
+    border-radius: 10px;
 }
 .v-contract small {
     color: #6b7280;
@@ -744,6 +745,7 @@
     padding: 14px 16px;
     margin: 12px 0 18px;
     background: #eaf1fd;
+    border-radius: 10px;
     border-left: 3px solid #2563eb;
     --c: #2563eb;
 }
@@ -809,7 +811,7 @@
     color: #6b7280;
 }
 
-.v-actual {
+/* .v-actual {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -818,7 +820,7 @@
 }
 .v-actual b {
     color: #1e293b;
-}
+} */
 
 .timeline {
     list-style: none;

@@ -386,50 +386,6 @@ class ProjectController extends Controller
         );
     }
 
-
-    // stage 3
-    // public function updateSchedule(Request $request, Project $project)
-    // {
-
-    //     abort_if(Auth::user()->role === 'admin' || $project->division_id !== Auth::user()->division_id, 403);
-    //     abort_if(! $project->contract_date, 422, 'Record the contract first.');
-
-    //     $data = $request->validate([
-    //         'ntp_date'        => ['required', 'date', 'after_or_equal:' . Carbon::parse($project->contract_date)->toDateString()],
-    //         'delivery_period' => ['required', 'integer', 'between:1,120'],
-    //         'status_id'       => 'required|exists:statuses,id',
-    //         'update'          => 'required|string|max:255',
-    //         'status_date'     => 'required|date',
-    //         'documents'   => 'nullable|array',
-    //         'documents.*' => 'nullable|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:10240',
-    //     ]);
-
-    //     $project->update([
-    //         'ntp_date'        => $data['ntp_date'],
-    //         'delivery_period' => $data['delivery_period'],
-    //         'status_id'       => $data['status_id'],
-    //     ]);
-
-    //     foreach ($request->file('documents', []) as $file) {
-    //             $project->documents()->create([
-    //                 'file_name' => $file->getClientOriginalName(),
-    //                 'file_path' => $file->store("projects/{$project->id}", 'public'),
-    //                 'user_id' => Auth::id(),
-    //                 'division_id' => $project->division_id,
-    //             ]);
-    //         }
-
-    //     $project->updates()->create([
-    //         'division_id' => $project->division_id,
-    //         'status_id'   => $data['status_id'],
-    //         'created_by'  => Auth::id(),
-    //         'update'      => $data['update'],
-    //         'status_date' => $data['status_date'],
-    //     ]);
-
-    //     return redirect()->route('projects.index')->with('success', 'Schedule saved (' . $project->project_name . ').');
-    // }
-
     // delete upload
     public function destroyDocument(Documents $document)
     {

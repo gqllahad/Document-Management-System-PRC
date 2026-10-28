@@ -212,8 +212,38 @@ toggle?.addEventListener('click', () => {
             const priceInput = form.querySelector('[name="contract_price"]');
             const abcWarning = document.getElementById('abcWarning');
 
+            // const checkPrice = () => {
+            //     const price = parseFloat(priceInput.value.replace(/,/g, '')) || 0;
+
+            //     const otherUnitsTotal = units.reduce((total, unit) => {
+            //         if (String(unit.id) === String(selectedUnit?.id)) {
+            //             return total;
+            //         }
+
+            //         return total + (parseFloat(unit.price) || 0);
+            //     }, 0);
+
+            //     const remainingABC = maxPrice - otherUnitsTotal;
+            //     const over = price > remainingABC;
+            //     const zero = priceInput.value.trim() !== '' && price <= 0;
+
+            //     abcWarning.textContent = over
+            //     ? `Contract price cannot exceed the remaining ABC of ₱${remainingABC.toLocaleString('en-PH', {
+            //         minimumFractionDigits: 2,
+            //         maximumFractionDigits: 2
+            //     })}.`
+            //     : zero
+            //         ? 'Contract price must be greater than ₱0.'
+            //         : '';
+
+            //     abcWarning.hidden = !(over || zero);
+
+            //     priceInput.closest('.input-prefix')?.classList.toggle('invalid', over || zero);
+            // };
+
             const checkPrice = () => {
-                const price = parseFloat(priceInput.value.replace(/,/g, '')) || 0;
+                const rawPrice = priceInput.value.replace(/,/g, '').trim();
+                const price = parseFloat(rawPrice);
 
                 const otherUnitsTotal = units.reduce((total, unit) => {
                     if (String(unit.id) === String(selectedUnit?.id)) {
@@ -223,21 +253,21 @@ toggle?.addEventListener('click', () => {
                     return total + (parseFloat(unit.price) || 0);
                 }, 0);
 
-                const remainingABC = maxPrice - otherUnitsTotal;
-                const over = price > remainingABC;
-                const zero = priceInput.value.trim() !== '' && price <= 0;
+                const remainingABC = Math.max(0, maxPrice - otherUnitsTotal);
+
+                const over = rawPrice !== '' && Number.isFinite(price) && price > remainingABC;
+                const zero = rawPrice !== '' && (!Number.isFinite(price) || price <= 0);
 
                 abcWarning.textContent = over
-                ? `Contract price cannot exceed the remaining ABC of ₱${remainingABC.toLocaleString('en-PH', {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                })}.`
-                : zero
-                    ? 'Contract price must be greater than ₱0.'
-                    : '';
+                    ? `Contract price cannot exceed the remaining ABC of ₱${remainingABC.toLocaleString('en-PH', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}.`
+                    : zero
+                        ? 'Contract price must be greater than ₱0.'
+                        : '';
 
                 abcWarning.hidden = !(over || zero);
-
                 priceInput.closest('.input-prefix')?.classList.toggle('invalid', over || zero);
             };
 
@@ -265,7 +295,11 @@ toggle?.addEventListener('click', () => {
                 unlock.textContent = 'Cancel';
             };
 
-            unitSelect.value = '';
+            // unitSelect.value = '';
+            // loadUnit();
+            const single = units.length === 1;
+            unitSelect.value = single ? String(units[0].id) : '';
+            unitSelect.closest('.field').style.display = single ? 'none' : '';
             loadUnit();
 
             toStage3.onclick = () => {
@@ -677,12 +711,12 @@ toggle?.addEventListener('click', () => {
             document.getElementById('vPeriod').hidden = !period;
             set('vPeriodText', period);
 
-            show('vDelivered', d.delivered || 'Not yet delivered');
-            show('vNtp', d.ntp);
+            show('vDelivered', src.delivered || 'Not yet delivered');
+            show('vNtp', src.ntp);
 
             const box = document.getElementById('vDelivery');
-            const start = d.ntp ? new Date(d.ntp) : null;
-            const days = parseInt(d.deliveryPeriod) || 0;
+            const start = src.ntp ? new Date(src.ntp) : null;
+            const days = parseInt(src.deliveryPeriod) || 0;
 
             const delivered = src.delivered ? new Date(src.delivered) : null;
 

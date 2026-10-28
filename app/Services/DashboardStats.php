@@ -80,6 +80,7 @@ class DashboardStats
             return [
                 'd' => $p->division_id,
                 'y' => $p->fiscal_year,
+                'q' => $p->quarter,
                 'delivered' => $delivered ? 1 : 0,
                 'abc' => (float) $p->approved_budget,
                 'contract' => $hasContract ? $contract : 0,
@@ -129,7 +130,7 @@ class DashboardStats
                             'project_id' => $p->id,
                             'unit_name' => $unit->unit_name,
                             'division_id' => $p->division_id,
-                            'quarter' => $unit->quarter ?? $p->quarter,
+                            'quarter' => $p->quarter,
                             'year' => $p->fiscal_year,
                             'name' => $p->project_name,
                             'division' => $p->division->name ?? '—',

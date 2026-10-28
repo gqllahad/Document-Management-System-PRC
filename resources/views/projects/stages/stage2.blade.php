@@ -27,7 +27,7 @@
 
             <hr>
 
-             <div class="field">
+            <div class="field">
                 <label for="cUnit">Procurement unit <b class="required">*</b></label>
                 <select id="cUnit" name="procurement_unit_id" required>
                     <option value="">Select procurement unit</option>
@@ -80,18 +80,6 @@
                     @endforeach
                 </select>
             </div>
-
-            <!-- <div class="row-2">
-                <div class="field">
-                    <label for="delivery_period">Delivery period (Days)</label>
-                    <input type="number" id="delivery_period" name="delivery_period" value="{{ old('delivery_period', $project->delivery_period ?? '') }}" min="1" max="120"step="1" placeholder="Enter calendar days (1–120)">
-                </div>
-
-                <div class="field">
-                    <label for="actual_delivery">Actual delivery</label>
-                    <input type="date" id="actual_delivery" name="actual_delivery" value="{{ old('actual_date_of_delivery', $project->actual_date_of_delivery ?? '') }}">
-                </div>
-            </div> -->
             
             <div class="field">
                 <label for="update">Current status <b class="required">*</b></label>

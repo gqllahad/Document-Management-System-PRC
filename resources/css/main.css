@@ -620,7 +620,7 @@ a.btn-primary {
     align-self: flex-start;
     background: #e8f0fe;
     color: #1d4ed8;
-    font-size: 0.65rem;
+    font-size: 0.78rem;
     padding: 4px 10px;
     border-radius: 6px;
 }
@@ -882,6 +882,13 @@ a.btn-primary {
     grid-template-columns: 1fr 1fr;
     gap: 14px;
 }
+
+.row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+}
+
 .seg {
     display: grid;
     grid-template-columns: 1fr 1fr;

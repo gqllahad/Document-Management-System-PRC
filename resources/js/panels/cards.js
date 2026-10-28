@@ -1,6 +1,7 @@
 (() => {
     const box = document.querySelector('.cards-container');
     const sel = document.getElementById('divisionFilter');
+    const quarterSel = document.getElementById('quarterFilter');
     const yearSel = document.getElementById('fiscalFilter');
     if (!box) return;
 
@@ -9,15 +10,17 @@
     const fmt = n => n >= 1e6 ? '₱' + (n / 1e6).toFixed(2) + 'M'
                    : n >= 1e3 ? '₱' + (n / 1e3).toFixed(2) + 'K'
                    : '₱' + n.toFixed(2);
-    const set = (k, v) => box.querySelector(`[data-stat="${k}"]`).textContent = v;
+    const set = (k, v) => { const el = box.querySelector(`[data-stat="${k}"]`); if (el) el.textContent = v; };
 
     const render = () => {
         const div  = sel?.value ?? 'all';
         const year = yearSel?.value ?? 'all';
+        const quarter = quarterSel?.value ?? 'all';
 
         const rows = data.filter(r =>
             (div  === 'all' || String(r.d) === div) &&
-            (year === 'all' || String(r.y) === year)
+            (year === 'all' || String(r.y) === year) &&
+            (quarter === 'all' || String(r.q) === quarter)
         );
         const s = k => rows.reduce((a, r) => a + r[k], 0);
         const total = rows.length;
@@ -35,4 +38,5 @@
 
     sel?.addEventListener('change', render);
     yearSel?.addEventListener('change', render);
+    quarterSel?.addEventListener('change', render);
 })();

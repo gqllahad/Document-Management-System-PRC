@@ -13,7 +13,7 @@
             <div class="v-top">
                 <div class="v-tags">
                     <span class="drawer-badge" id="vDivision"></span>
-                    <span class="drawer-badge" id="vPeriod" hidden><i class="bi bi-calendar-event"></i> <span id="vPeriodText"></span></span>
+                    <span class="drawer-badge" id="vPeriod" hidden><i class="bi bi-calendar-event"></i><span id="vPeriodText"></span></span>
                 </div>
                 <span class="v-pill" id="vStatusPill" data-tone="info">
                     <i class="v-dot"></i>
@@ -71,16 +71,14 @@
                     <div class="v-track"><i id="vTrackFill"></i><span class="v-pin"><i class="bi bi-geo-alt-fill"></i></span></div>
                     <div class="v-track-lbl"><span>NTP start</span><span>Delivery deadline</span></div>
 
-                    <div class="row-2 v-meta">
+                    <div class="row-3 v-meta">
                         <div><small><i class="bi bi-calendar3"></i> NTP start date</small><b id="vNtp"></b></div>
                         <div><small><i class="bi bi-geo-alt"></i> Delivery deadline</small><b id="vDeadline"></b></div>
+                        <div><small><i class="bi bi-box-seam"></i> Actual delivery</small> <b id="vDelivered"></b> </div>
                     </div>
                 </div>
 
-                <div class="v-actual">
-                    <small><i class="bi bi-truck"></i> Actual delivery</small>
-                    <b id="vDelivered"></b>
-                </div>
+                
         </div>
 
 
@@ -97,7 +95,7 @@
             </div>
         </div>
 
-        <div class="v-sec"><i class="bi bi-arrow-repeat"></i> Progress</div>
+        <div class="v-sec"><i class="bi bi-list-check"></i> Progress</div>
             <div class="v-progress">
                 <small>Current Update</small>
                 <strong id="vStatus2"></strong>

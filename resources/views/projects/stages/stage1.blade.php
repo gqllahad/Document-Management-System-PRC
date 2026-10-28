@@ -77,7 +77,7 @@
                         <input type="radio" name="procurement_structure" value="single"
                             @checked(old('procurement_structure', 'single') === 'single')>
                         <span class="choice-card">
-                            <i class="bi bi-file-earmark-text"></i>
+                            <!-- <i class="bi bi-file-earmark-text"></i> -->
                             <span>
                                 <strong>Main Contract</strong>
                                 <small>Single procurement unit</small>
@@ -89,7 +89,7 @@
                         <input type="radio" name="procurement_structure" value="multiple"
                             @checked(old('procurement_structure') === 'multiple')>
                         <span class="choice-card">
-                            <i class="bi bi-boxes"></i>
+                            <!-- <i class="bi bi-boxes"></i> -->
                             <span>
                                 <strong>Multiple Units</strong>
                                 <small>Split into separate lots</small>

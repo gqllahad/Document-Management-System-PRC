@@ -14,7 +14,8 @@
 
     <div>
         <nav class="crumbs">Procurement <i class="bi bi-chevron-right"></i> <span>Projects</span></nav>
-        <h2>Procurement Projects<span class="count">{{ $projects->count() }}</span></h2>
+        <h2>Procurement Projects</h2> 
+        <!-- <span class="count">{{ $projects->count() }}</span> -->
         <p>{{ auth()->user()->role === 'admin' ? 'All divisions' : Str::upper(auth()->user()->division->name) }}</p>
     </div>
 

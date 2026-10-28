@@ -95,53 +95,53 @@ class DashboardController extends Controller
         ));
     }
 
-    private function deliveries(Collection $projects): Collection
-    {
-        $today = now()->startOfDay(); 
+    // private function deliveries(Collection $projects): Collection
+    // {
+    //     $today = now()->startOfDay(); 
 
-        return $projects
-            ->filter(fn ($p) => $p->ntp_date && $p->delivery_period)
-            ->map(function ($p) use ($today) {
-                $ntp      = Carbon::parse($p->ntp_date)->startOfDay();
-                $deadline = $ntp->copy()->addDays($p->delivery_period);
-                $actual   = $p->actual_date_of_delivery ? Carbon::parse($p->actual_date_of_delivery)->startOfDay() : null;
-                $left     = (int) $today->diffInDays($deadline, false);
-                $elapsed  = (int) $ntp->diffInDays($actual ?? $today, false);
-                $pct      = (int) min(100, max(0, round($elapsed / $p->delivery_period * 100)));
+    //     return $projects
+    //         ->filter(fn ($p) => $p->ntp_date && $p->delivery_period)
+    //         ->map(function ($p) use ($today) {
+    //             $ntp      = Carbon::parse($p->ntp_date)->startOfDay();
+    //             $deadline = $ntp->copy()->addDays($p->delivery_period);
+    //             $actual   = $p->actual_date_of_delivery ? Carbon::parse($p->actual_date_of_delivery)->startOfDay() : null;
+    //             $left     = (int) $today->diffInDays($deadline, false);
+    //             $elapsed  = (int) $ntp->diffInDays($actual ?? $today, false);
+    //             $pct      = (int) min(100, max(0, round($elapsed / $p->delivery_period * 100)));
 
-                $state = match (true) {
-                    (bool) $actual => 'delivered',
-                    $left < 0      => 'overdue',
-                    $left <= 14     => 'soon',
-                    default        => 'ongoing',
-                };
+    //             $state = match (true) {
+    //                 (bool) $actual => 'delivered',
+    //                 $left < 0      => 'overdue',
+    //                 $left <= 14     => 'soon',
+    //                 default        => 'ongoing',
+    //             };
 
-                return (object) [
-                    'id'          => $p->id,
-                    'division_id' => $p->division_id,
-                    'quarter'     => $p->quarter,
-                    'year'        => $p->fiscal_year,
-                    'name'        => $p->project_name,
-                    'division'    => $p->division->name ?? '—',
-                    'contract_no' => $p->contract_number ?? 'No contract no.',
-                    'period'      => $p->delivery_period,
-                    'ntp'         => $ntp,
-                    'deadline'    => $deadline,
-                    'actual'      => $actual,
-                    'pct'         => $pct,
-                    'state'       => $state,
-                    'order'       => ['overdue' => 0, 'soon' => 1, 'ongoing' => 2, 'delivered' => 3][$state],
-                    'label'       => match (true) {
-                                    (bool) $actual => 'Delivery recorded',
-                                    $left < 0      => abs($left) . ' ' . Str::plural('day', abs($left)) . ' overdue',
-                                    $left === 0    => 'Due today',
-                                    default => $left . ' ' . Str::plural('day', $left) . ' left',
-                                },
-                ];
-            })
-            ->sortBy([['order', 'asc'], ['deadline', 'asc']])
-            ->values();
-    }
+    //             return (object) [
+    //                 'id'          => $p->id,
+    //                 'division_id' => $p->division_id,
+    //                 'quarter'     => $p->quarter,
+    //                 'year'        => $p->fiscal_year,
+    //                 'name'        => $p->project_name,
+    //                 'division'    => $p->division->name ?? '—',
+    //                 'contract_no' => $p->contract_number ?? 'No contract no.',
+    //                 'period'      => $p->delivery_period,
+    //                 'ntp'         => $ntp,
+    //                 'deadline'    => $deadline,
+    //                 'actual'      => $actual,
+    //                 'pct'         => $pct,
+    //                 'state'       => $state,
+    //                 'order'       => ['overdue' => 0, 'soon' => 1, 'ongoing' => 2, 'delivered' => 3][$state],
+    //                 'label'       => match (true) {
+    //                                 (bool) $actual => 'Delivery recorded',
+    //                                 $left < 0      => abs($left) . ' ' . Str::plural('day', abs($left)) . ' overdue',
+    //                                 $left === 0    => 'Due today',
+    //                                 default => $left . ' ' . Str::plural('day', $left) . ' left',
+    //                             },
+    //             ];
+    //         })
+    //         ->sortBy([['order', 'asc'], ['deadline', 'asc']])
+    //         ->values();
+    // }
 
     public function trackingProjects()
     {
@@ -152,7 +152,7 @@ class DashboardController extends Controller
         $scoped = Project::visibleTo($user);
 
         $deliveries = DashboardStats::deliveries(
-            Project::with('division')->visibleTo(Auth::user())->get()
+            Project::with(['division', 'procurementUnits'])->visibleTo(Auth::user())->get()
         );
 
         return view('division.partials.tracking', [
